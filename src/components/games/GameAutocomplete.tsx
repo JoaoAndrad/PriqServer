@@ -14,7 +14,16 @@ export default function GameAutocomplete({
   const [results, setResults] = useState<GameDTO[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [forcing, setForcing] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  async function runSearch(trimmed: string, force: boolean) {
+    const res = await fetch(
+      `/api/games/search?q=${encodeURIComponent(trimmed)}${force ? "&force=true" : ""}`,
+    );
+    const data = await res.json();
+    return data.games ?? [];
+  }
 
   useEffect(() => {
     const trimmed = query.trim();
@@ -27,10 +36,9 @@ export default function GameAutocomplete({
     let ignore = false;
     setLoading(true);
     const timer = setTimeout(async () => {
-      const res = await fetch(`/api/games/search?q=${encodeURIComponent(trimmed)}`);
-      const data = await res.json();
+      const games = await runSearch(trimmed, false);
       if (ignore) return;
-      setResults(data.games ?? []);
+      setResults(games);
       setOpen(true);
       setLoading(false);
     }, 250);
@@ -40,6 +48,16 @@ export default function GameAutocomplete({
       clearTimeout(timer);
     };
   }, [query]);
+
+  async function handleForceSearch() {
+    const trimmed = query.trim();
+    if (trimmed.length === 0) return;
+    setForcing(true);
+    const games = await runSearch(trimmed, true);
+    setResults(games);
+    setOpen(true);
+    setForcing(false);
+  }
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -60,14 +78,26 @@ export default function GameAutocomplete({
 
   return (
     <div className="autocomplete" ref={containerRef}>
-      <input
-        type="text"
-        placeholder={placeholder}
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        onFocus={() => results.length > 0 && setOpen(true)}
-        autoFocus
-      />
+      <div style={{ display: "flex", gap: 8 }}>
+        <input
+          type="text"
+          placeholder={placeholder}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => results.length > 0 && setOpen(true)}
+          autoFocus
+          style={{ flex: 1 }}
+        />
+        <button
+          type="button"
+          className="secondary"
+          onClick={handleForceSearch}
+          disabled={query.trim().length === 0 || forcing}
+          title="Ignora o cache e busca de novo na Steam/TheGamesDB"
+        >
+          {forcing ? "Buscando..." : "Forçar nova busca"}
+        </button>
+      </div>
       {open && (
         <div className="autocomplete-dropdown">
           {loading && <div className="autocomplete-item muted">Buscando...</div>}

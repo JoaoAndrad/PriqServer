@@ -7,6 +7,7 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
 
   const q = req.nextUrl.searchParams.get("q") ?? "";
-  const games = await searchGames(q);
+  const force = req.nextUrl.searchParams.get("force") === "true";
+  const games = await searchGames(q, { force });
   return NextResponse.json({ games });
 }

@@ -25,7 +25,7 @@ import { THEGAMESDB_API_KEY, TGDB_CACHE_TTL_DAYS } from "@/lib/config";
  * Buscas com menos de 3 letras não vão pras APIs externas (só cache local),
  * pra evitar bater nelas a cada tecla digitada com termos pouco úteis.
  */
-export async function searchGames(query: string) {
+export async function searchGames(query: string, options: { force?: boolean } = {}) {
   const trimmed = query.trim();
   if (!trimmed) return [];
 
@@ -35,7 +35,8 @@ export async function searchGames(query: string) {
   });
 
   const ttlCutoff = new Date(Date.now() - TGDB_CACHE_TTL_DAYS * 24 * 60 * 60 * 1000);
-  const cacheIsFresh = local.length > 0 && local.every((g) => g.refreshedAt >= ttlCutoff);
+  const cacheIsFresh =
+    !options.force && local.length > 0 && local.every((g) => g.refreshedAt >= ttlCutoff);
 
   if (cacheIsFresh) {
     console.log(`[games/search] "${trimmed}" -> cache (${local.length})`);
