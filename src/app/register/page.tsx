@@ -41,7 +41,14 @@ export default function RegisterPage() {
 
   return (
     <div className="card" style={{ maxWidth: 360, margin: "48px auto" }}>
-      <h1>Criar conta</h1>
+      <img
+        src="/favicon.ico"
+        alt=""
+        width={48}
+        height={48}
+        style={{ display: "block", margin: "0 auto 12px" }}
+      />
+      <h1 style={{ textAlign: "center" }}>Criar conta</h1>
       <form onSubmit={handleSubmit}>
         <div className="form-field">
           <label htmlFor="username">Usuário</label>

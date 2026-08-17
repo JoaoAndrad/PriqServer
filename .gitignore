@@ -19,6 +19,7 @@
 # e versionamos o resultado. Não versionar cache de build (pesado e
 # desnecessário em produção).
 /.next/cache/
+/.next/dev/
 /out/
 
 # production

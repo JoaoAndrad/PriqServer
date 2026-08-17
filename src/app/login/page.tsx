@@ -37,7 +37,14 @@ export default function LoginPage() {
 
   return (
     <div className="card" style={{ maxWidth: 360, margin: "48px auto" }}>
-      <h1>Entrar no Priquito</h1>
+      <img
+        src="/favicon.ico"
+        alt=""
+        width={48}
+        height={48}
+        style={{ display: "block", margin: "0 auto 12px" }}
+      />
+      <h1 style={{ textAlign: "center" }}>Entrar no Priquito</h1>
       <form onSubmit={handleSubmit}>
         <div className="form-field">
           <label htmlFor="username">Usuário</label>

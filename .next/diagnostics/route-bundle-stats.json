@@ -26,11 +26,11 @@
     ]
   },
   {
-    "route": "/prikedin/[recruitmentId]",
-    "firstLoadUncompressedJsBytes": 472205,
+    "route": "/login",
+    "firstLoadUncompressedJsBytes": 472289,
     "firstLoadChunkPaths": [
       ".next\\static\\chunks\\3heq3e6wy_z90.js",
-      ".next\\static\\chunks\\22zvjurqdu2-y.js",
+      ".next\\static\\chunks\\14we9kgp9dlkz.js",
       ".next\\static\\chunks\\310vm2bl3xxpt.js",
       ".next\\static\\chunks\\40j26qmlkjc3v.js",
       ".next\\static\\chunks\\3e4keds9ktjdu.js",
@@ -39,11 +39,11 @@
     ]
   },
   {
-    "route": "/login",
-    "firstLoadUncompressedJsBytes": 472153,
+    "route": "/prikedin/[recruitmentId]",
+    "firstLoadUncompressedJsBytes": 472205,
     "firstLoadChunkPaths": [
       ".next\\static\\chunks\\3heq3e6wy_z90.js",
-      ".next\\static\\chunks\\2_13kae0-wnsm.js",
+      ".next\\static\\chunks\\22zvjurqdu2-y.js",
       ".next\\static\\chunks\\310vm2bl3xxpt.js",
       ".next\\static\\chunks\\40j26qmlkjc3v.js",
       ".next\\static\\chunks\\3e4keds9ktjdu.js",
@@ -105,10 +105,10 @@
   },
   {
     "route": "/register",
-    "firstLoadUncompressedJsBytes": 469267,
+    "firstLoadUncompressedJsBytes": 469207,
     "firstLoadChunkPaths": [
       ".next\\static\\chunks\\3heq3e6wy_z90.js",
-      ".next\\static\\chunks\\2q0nvwnwyb-5d.js",
+      ".next\\static\\chunks\\0w_rgvenzpp5k.js",
       ".next\\static\\chunks\\310vm2bl3xxpt.js",
       ".next\\static\\chunks\\40j26qmlkjc3v.js",
       ".next\\static\\chunks\\3e4keds9ktjdu.js",
