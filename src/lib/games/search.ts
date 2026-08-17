@@ -2,14 +2,18 @@ import { prisma } from "@/lib/prisma";
 import { searchSteamStore, steamCoverUrl } from "@/lib/steam/client";
 import { searchTgdbGames, getTgdbGameById } from "@/lib/thegamesdb/client";
 import { mapTgdbToGameData } from "@/lib/thegamesdb/mapper";
-import { THEGAMESDB_API_KEY } from "@/lib/config";
+import { THEGAMESDB_API_KEY, TGDB_CACHE_TTL_DAYS } from "@/lib/config";
 
 /**
  * Busca de jogos combinando três camadas, sempre nessa ordem:
  * 1. Cache local (SQLite) — instantâneo, não depende de nenhuma API externa.
- *    Qualquer resultado local já é considerado "cache válido" — não faz sentido
- *    bater na API externa de novo só porque a busca teve poucos resultados
- *    (ex.: um jogo específico como "Valorant" nunca teria 5+ correspondências).
+ *    Só é considerado "cache válido" (pula as APIs externas) se TODOS os
+ *    resultados locais foram atualizados há menos de TGDB_CACHE_TTL_DAYS dias.
+ *    Sem TTL, um termo que uma vez bateu num cache pobre/incompleto (ex.: só
+ *    achou um jogo parecido, não o certo) nunca mais buscaria de novo — e como
+ *    não apagamos o banco, isso travaria pra sempre. Cache velho não é descartado,
+ *    só deixa de bloquear a busca externa: os resultados frescos são mesclados
+ *    (upsert) por cima, sem perder nada que já existia.
  * 2. Steam Store Search e 3. TheGamesDB (se THEGAMESDB_API_KEY estiver configurada)
  *    são consultadas em paralelo e mescladas — a Steam não vende tudo (jogos
  *    F2P fora da loja, tipo League of Legends, nunca aparecem lá), então não dá
@@ -30,13 +34,20 @@ export async function searchGames(query: string) {
     take: 20,
   });
 
-  if (local.length > 0) {
+  const ttlCutoff = new Date(Date.now() - TGDB_CACHE_TTL_DAYS * 24 * 60 * 60 * 1000);
+  const cacheIsFresh = local.length > 0 && local.every((g) => g.refreshedAt >= ttlCutoff);
+
+  if (cacheIsFresh) {
     console.log(`[games/search] "${trimmed}" -> cache (${local.length})`);
     return local;
   }
 
   if (trimmed.length < 3) {
     return local;
+  }
+
+  if (local.length > 0) {
+    console.log(`[games/search] "${trimmed}" -> cache velho (${local.length}), revalidando nas APIs`);
   }
 
   const byId = new Map(local.map((g) => [g.id, g]));
