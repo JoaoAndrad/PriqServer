@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import GameAutocomplete from "@/components/games/GameAutocomplete";
+import { coverSrc } from "@/lib/games/coverProxy";
 import type { GameDTO } from "@/types";
 
 type DayPreset = "today" | "tomorrow" | "weekend" | "custom";
@@ -135,7 +136,7 @@ export default function NewRecruitmentPage() {
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 {selectedGame.coverUrl && (
                   <img
-                    src={selectedGame.coverUrl}
+                    src={coverSrc(selectedGame.coverUrl)!}
                     alt=""
                     style={{ width: 56, height: 42, objectFit: "cover", borderRadius: 4 }}
                   />

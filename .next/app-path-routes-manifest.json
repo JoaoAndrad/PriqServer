@@ -4,6 +4,7 @@
   "/api/admin/gamepass-sync/route": "/api/admin/gamepass-sync",
   "/api/auth/[...nextauth]/route": "/api/auth/[...nextauth]",
   "/api/availability/route": "/api/availability",
+  "/api/cover/route": "/api/cover",
   "/api/draw/route": "/api/draw",
   "/api/games/[id]/route": "/api/games/[id]",
   "/api/games/route": "/api/games",

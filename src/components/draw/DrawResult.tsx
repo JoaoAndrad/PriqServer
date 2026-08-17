@@ -1,3 +1,4 @@
+import { coverSrc } from "@/lib/games/coverProxy";
 import type { GameDTO } from "@/types";
 
 interface FallbackEntry {
@@ -27,7 +28,7 @@ export default function DrawResult({
       <p className="muted">O jogo de hoje é...</p>
       {picked.coverUrl && (
         <img
-          src={picked.coverUrl}
+          src={coverSrc(picked.coverUrl)!}
           alt=""
           style={{ maxWidth: 240, borderRadius: 8, margin: "0 auto 12px" }}
         />

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { StarIcon } from "@/components/ui/icons";
+import { coverSrc } from "@/lib/games/coverProxy";
 import type { GameDTO } from "@/types";
 
 interface PublicUserGame {
@@ -70,7 +71,7 @@ export default function PublicProfilePage() {
           <div className="game-grid">
             {favorites.map((ug) => (
               <div key={ug.game.id} className="game-card">
-                {ug.game.coverUrl && <img src={ug.game.coverUrl} alt="" />}
+                {ug.game.coverUrl && <img src={coverSrc(ug.game.coverUrl)!} alt="" />}
                 <div className="body">{ug.game.name}</div>
               </div>
             ))}
@@ -84,7 +85,7 @@ export default function PublicProfilePage() {
           <div className="game-grid">
             {interested.map((ug) => (
               <div key={ug.game.id} className="game-card">
-                {ug.game.coverUrl && <img src={ug.game.coverUrl} alt="" />}
+                {ug.game.coverUrl && <img src={coverSrc(ug.game.coverUrl)!} alt="" />}
                 <div className="body">{ug.game.name}</div>
               </div>
             ))}
@@ -98,7 +99,7 @@ export default function PublicProfilePage() {
           <div className="game-grid">
             {owned.map((ug) => (
               <div key={ug.game.id} className="game-card">
-                {ug.game.coverUrl && <img src={ug.game.coverUrl} alt="" />}
+                {ug.game.coverUrl && <img src={coverSrc(ug.game.coverUrl)!} alt="" />}
                 <div className="body">{ug.game.name}</div>
               </div>
             ))}

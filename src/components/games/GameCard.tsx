@@ -2,6 +2,7 @@
 
 import type { GameDTO } from "@/types";
 import { gameStoreUrl } from "@/lib/games/storeUrl";
+import { coverSrc } from "@/lib/games/coverProxy";
 import GameCategoryToggle, { type GameFlags } from "./GameCategoryToggle";
 
 export default function GameCard({
@@ -14,16 +15,17 @@ export default function GameCard({
   onToggle: (key: keyof GameFlags, value: boolean) => void;
 }) {
   const storeUrl = gameStoreUrl(game);
+  const cover = coverSrc(game.coverUrl);
 
   return (
     <div className="game-card">
-      {game.coverUrl &&
+      {cover &&
         (storeUrl ? (
           <a href={storeUrl} target="_blank" rel="noopener noreferrer">
-            <img src={game.coverUrl} alt="" />
+            <img src={cover} alt="" />
           </a>
         ) : (
-          <img src={game.coverUrl} alt="" />
+          <img src={cover} alt="" />
         ))}
       <div className="body">
         {storeUrl ? (

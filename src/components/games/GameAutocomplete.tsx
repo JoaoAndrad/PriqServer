@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { coverSrc } from "@/lib/games/coverProxy";
 import type { GameDTO } from "@/types";
 
 export default function GameAutocomplete({
@@ -113,7 +114,7 @@ export default function GameAutocomplete({
                 onClick={() => handleSelect(game)}
               >
                 {game.coverUrl ? (
-                  <img src={game.coverUrl} alt="" />
+                  <img src={coverSrc(game.coverUrl)!} alt="" />
                 ) : (
                   <span className="autocomplete-item-icon-placeholder" />
                 )}

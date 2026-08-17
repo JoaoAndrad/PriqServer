@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { CloseIcon, HeartSwipeIcon } from "@/components/ui/icons";
+import { coverSrc } from "@/lib/games/coverProxy";
 import type { GameDTO } from "@/types";
 
 const VOTE_THRESHOLD = 100;
@@ -69,7 +70,7 @@ export default function SwipeCard({
         {offsetX > 30 && <span className="swipe-badge like">CURTI</span>}
         {offsetX < -30 && <span className="swipe-badge dislike">PASSO</span>}
 
-        {game.coverUrl && <img src={game.coverUrl} alt="" draggable={false} />}
+        {game.coverUrl && <img src={coverSrc(game.coverUrl)!} alt="" draggable={false} />}
         <div className="body">
           <h2 style={{ margin: 0 }}>{game.name}</h2>
         </div>

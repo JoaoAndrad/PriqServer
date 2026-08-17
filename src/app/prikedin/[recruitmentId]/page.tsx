@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import CandidateRankingList from "@/components/prikedin/CandidateRankingList";
 import { CheckIcon, HourglassIcon, CloseIcon } from "@/components/ui/icons";
+import { coverSrc } from "@/lib/games/coverProxy";
 import type { RankedCandidate } from "@/lib/prikedin/rankCandidates";
 import type { GameDTO, UserSummaryDTO } from "@/types";
 import type { ComponentType, SVGProps } from "react";
@@ -118,7 +119,7 @@ export default function RecruitmentDetailPage() {
       <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 8 }}>
         {recruitment.game.coverUrl && (
           <img
-            src={recruitment.game.coverUrl}
+            src={coverSrc(recruitment.game.coverUrl)!}
             alt=""
             style={{ width: 96, height: 72, objectFit: "cover", borderRadius: 8 }}
           />

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Modal from "@/components/ui/Modal";
 import { SparklesIcon } from "@/components/ui/icons";
+import { coverSrc } from "@/lib/games/coverProxy";
 import type { GameDTO, UserSummaryDTO } from "@/types";
 
 function avatarSrc(u: UserSummaryDTO) {
@@ -31,7 +32,7 @@ export default function MatchModal({
       <div style={{ textAlign: "center" }}>
         {game.coverUrl && (
           <img
-            src={game.coverUrl}
+            src={coverSrc(game.coverUrl)!}
             alt=""
             style={{ maxWidth: 200, borderRadius: 8, margin: "0 auto 16px" }}
           />

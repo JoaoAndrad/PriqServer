@@ -83,13 +83,18 @@ export async function searchGames(query: string, options: { force?: boolean } = 
   }
 
   const tgdbUpserted = await Promise.all(
-    tgdbResults.map((tgdb) =>
-      prisma.game.upsert({
+    tgdbResults.map((tgdb) => {
+      const data = mapTgdbToGameData(tgdb);
+      // Se essa resposta da TGDB não trouxe boxart, não apaga a capa que já
+      // temos salva — sem isso, um jogo que já tinha imagem boa fica sem foto
+      // só porque uma busca de revalidação bateu numa resposta incompleta.
+      const { coverUrl, ...updateWithoutCover } = data;
+      return prisma.game.upsert({
         where: { tgdbId: tgdb.id },
-        create: mapTgdbToGameData(tgdb),
-        update: mapTgdbToGameData(tgdb),
-      }),
-    ),
+        create: data,
+        update: coverUrl ? data : updateWithoutCover,
+      });
+    }),
   );
   for (const game of tgdbUpserted) byId.set(game.id, game);
   if (THEGAMESDB_API_KEY) {

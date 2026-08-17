@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { coverSrc } from "@/lib/games/coverProxy";
 import type { GameDTO, UserSummaryDTO } from "@/types";
 
 export interface InviteDTO {
@@ -56,7 +57,7 @@ export default function RecruitmentCard({ recruitment }: { recruitment: Recruitm
   return (
     <Link href={`/prikedin/${recruitment.id}`} className="recruitment-card">
       <div className="recruitment-card-cover">
-        {recruitment.game.coverUrl && <img src={recruitment.game.coverUrl} alt="" />}
+        {recruitment.game.coverUrl && <img src={coverSrc(recruitment.game.coverUrl)!} alt="" />}
         <span className={`badge urgency-${urgency.tone}`}>{urgency.label}</span>
         {recruitment.status !== "open" && <span className="badge closed">fechada</span>}
       </div>

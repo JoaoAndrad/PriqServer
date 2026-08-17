@@ -143,6 +143,12 @@
       "namedRegex": "^/api/availability(?:/)?$"
     },
     {
+      "page": "/api/cover",
+      "regex": "^/api/cover(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/cover(?:/)?$"
+    },
+    {
       "page": "/api/draw",
       "regex": "^/api/draw(?:/)?$",
       "routeKeys": {},
