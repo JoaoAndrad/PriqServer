@@ -47,6 +47,8 @@ export default function NewRecruitmentPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const prefilledGameId = searchParams.get("gameId");
+  const inviteUserId = searchParams.get("inviteUserId");
+  const inviteUserName = searchParams.get("inviteUserName");
 
   const [selectedGame, setSelectedGame] = useState<GameDTO | null>(null);
   const [dayPreset, setDayPreset] = useState<DayPreset>("today");
@@ -92,11 +94,21 @@ export default function NewRecruitmentPage() {
       }),
     });
     const data = await res.json();
-    setCreating(false);
     if (!res.ok) {
+      setCreating(false);
       setError(data.error ?? "Não foi possível criar a vaga");
       return;
     }
+
+    if (inviteUserId) {
+      await fetch(`/api/recruitments/${data.recruitment.id}/invite`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userIds: [inviteUserId] }),
+      });
+    }
+
+    setCreating(false);
     router.push(`/prikedin/${data.recruitment.id}`);
   }
 
@@ -104,6 +116,11 @@ export default function NewRecruitmentPage() {
     <div>
       <h1>Criar vaga</h1>
       <p className="muted">Escolha o jogo e diga mais ou menos quando rola — não precisa ser exato.</p>
+      {inviteUserId && (
+        <p className="muted">
+          <strong>{inviteUserName ?? "Esse jogador"}</strong> já vai ser convidado automaticamente.
+        </p>
+      )}
 
       <div className="card">
         {!selectedGame ? (

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import CandidateRankingList from "@/components/prikedin/CandidateRankingList";
 import { CheckIcon, HourglassIcon, CloseIcon } from "@/components/ui/icons";
 import type { RankedCandidate } from "@/lib/prikedin/rankCandidates";
@@ -152,10 +153,14 @@ export default function RecruitmentDetailPage() {
                       </p>
                     ) : (
                       people.map((inv) => (
-                        <div key={inv.id} className="invite-person">
+                        <Link
+                          key={inv.id}
+                          href={`/u/${inv.user.id}`}
+                          className="invite-person"
+                        >
                           <img src={avatarSrc(inv.user)} alt="" />
                           <span>{inv.user.displayName}</span>
-                        </div>
+                        </Link>
                       ))
                     )}
                   </div>

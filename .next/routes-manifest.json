@@ -87,12 +87,28 @@
       "namedRegex": "^/api/uploads/(?<nxtPpath>.+?)(?:/)?$"
     },
     {
+      "page": "/api/users/[id]",
+      "regex": "^/api/users/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/users/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
       "page": "/prikedin/[recruitmentId]",
       "regex": "^/prikedin/([^/]+?)(?:/)?$",
       "routeKeys": {
         "nxtPrecruitmentId": "nxtPrecruitmentId"
       },
       "namedRegex": "^/prikedin/(?<nxtPrecruitmentId>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/u/[userId]",
+      "regex": "^/u/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPuserId": "nxtPuserId"
+      },
+      "namedRegex": "^/u/(?<nxtPuserId>[^/]+?)(?:/)?$"
     }
   ],
   "staticRoutes": [

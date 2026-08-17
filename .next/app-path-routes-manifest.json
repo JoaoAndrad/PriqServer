@@ -23,6 +23,7 @@
   "/api/swipe/vote/route": "/api/swipe/vote",
   "/api/uploads/[...path]/route": "/api/uploads/[...path]",
   "/api/user-games/route": "/api/user-games",
+  "/api/users/[id]/route": "/api/users/[id]",
   "/api/users/route": "/api/users",
   "/draw/page": "/draw",
   "/favicon.ico/route": "/favicon.ico",
@@ -34,5 +35,6 @@
   "/prikedin/page": "/prikedin",
   "/profile/page": "/profile",
   "/register/page": "/register",
-  "/swipe/page": "/swipe"
+  "/swipe/page": "/swipe",
+  "/u/[userId]/page": "/u/[userId]"
 }

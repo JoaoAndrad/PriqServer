@@ -23,6 +23,7 @@
   "/api/swipe/vote/route": "app/api/swipe/vote/route.js",
   "/api/uploads/[...path]/route": "app/api/uploads/[...path]/route.js",
   "/api/user-games/route": "app/api/user-games/route.js",
+  "/api/users/[id]/route": "app/api/users/[id]/route.js",
   "/api/users/route": "app/api/users/route.js",
   "/draw/page": "app/draw/page.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
@@ -34,5 +35,6 @@
   "/prikedin/page": "app/prikedin/page.js",
   "/profile/page": "app/profile/page.js",
   "/register/page": "app/register/page.js",
-  "/swipe/page": "app/swipe/page.js"
+  "/swipe/page": "app/swipe/page.js",
+  "/u/[userId]/page": "app/u/[userId]/page.js"
 }
