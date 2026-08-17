@@ -10,9 +10,11 @@ import { THEGAMESDB_API_KEY } from "@/lib/config";
  *    Qualquer resultado local já é considerado "cache válido" — não faz sentido
  *    bater na API externa de novo só porque a busca teve poucos resultados
  *    (ex.: um jogo específico como "Valorant" nunca teria 5+ correspondências).
- * 2. Steam Store Search — sem chave, sempre disponível, catálogo grande.
- * 3. TheGamesDB — só se THEGAMESDB_API_KEY estiver configurada, como reforço
- *    (bom pra jogos retrô/consoles que a Steam não tem).
+ * 2. Steam Store Search e 3. TheGamesDB (se THEGAMESDB_API_KEY estiver configurada)
+ *    são consultadas em paralelo e mescladas — a Steam não vende tudo (jogos
+ *    F2P fora da loja, tipo League of Legends, nunca aparecem lá), então não dá
+ *    pra tratar TheGamesDB como fallback só-se-Steam-vier-vazia: um resultado
+ *    parecido na Steam não pode calar o jogo certo que só existe na TheGamesDB.
  * Nenhuma falha de API externa derruba a aplicação — sempre cai pro que já
  * está disponível.
  *
@@ -39,7 +41,11 @@ export async function searchGames(query: string) {
 
   const byId = new Map(local.map((g) => [g.id, g]));
 
-  const steamResults = await searchSteamStore(trimmed);
+  const [steamResults, tgdbResults] = await Promise.all([
+    searchSteamStore(trimmed),
+    THEGAMESDB_API_KEY ? searchTgdbGames(trimmed) : Promise.resolve([]),
+  ]);
+
   const steamUpserted = await Promise.all(
     steamResults.map((item) =>
       prisma.game.upsert({
@@ -56,23 +62,21 @@ export async function searchGames(query: string) {
     ),
   );
   for (const game of steamUpserted) byId.set(game.id, game);
-
-  if (byId.size > 0) {
-    console.log(`[games/search] "${trimmed}" -> steam (${byId.size})`);
+  if (steamUpserted.length > 0) {
+    console.log(`[games/search] "${trimmed}" -> steam (${steamUpserted.length})`);
   }
 
-  if (THEGAMESDB_API_KEY && byId.size === 0) {
-    const tgdbResults = await searchTgdbGames(trimmed);
-    const tgdbUpserted = await Promise.all(
-      tgdbResults.map((tgdb) =>
-        prisma.game.upsert({
-          where: { tgdbId: tgdb.id },
-          create: mapTgdbToGameData(tgdb),
-          update: mapTgdbToGameData(tgdb),
-        }),
-      ),
-    );
-    for (const game of tgdbUpserted) byId.set(game.id, game);
+  const tgdbUpserted = await Promise.all(
+    tgdbResults.map((tgdb) =>
+      prisma.game.upsert({
+        where: { tgdbId: tgdb.id },
+        create: mapTgdbToGameData(tgdb),
+        update: mapTgdbToGameData(tgdb),
+      }),
+    ),
+  );
+  for (const game of tgdbUpserted) byId.set(game.id, game);
+  if (tgdbUpserted.length > 0) {
     console.log(`[games/search] "${trimmed}" -> thegamesdb (${tgdbUpserted.length})`);
   }
 
