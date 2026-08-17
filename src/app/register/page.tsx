@@ -10,7 +10,6 @@ export default function RegisterPage() {
   const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -27,7 +26,7 @@ export default function RegisterPage() {
     const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, displayName, password, email }),
+      body: JSON.stringify({ username, displayName, password }),
     });
     setLoading(false);
 
@@ -50,7 +49,9 @@ export default function RegisterPage() {
             id="username"
             type="text"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) =>
+              setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))
+            }
             required
           />
         </div>
@@ -62,15 +63,6 @@ export default function RegisterPage() {
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             required
-          />
-        </div>
-        <div className="form-field">
-          <label htmlFor="email">E-mail (opcional)</label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div className="form-field">

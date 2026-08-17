@@ -7,7 +7,7 @@ export const registerSchema = z
       .trim()
       .min(3, "Mínimo de 3 caracteres")
       .max(24, "Máximo de 24 caracteres")
-      .regex(/^[a-z0-9_]+$/i, "Use apenas letras, números e _"),
+      .regex(/^[a-z0-9_]+$/, "Use apenas letras minúsculas, números e _ (sem espaços)"),
     displayName: z.string().trim().min(1, "Obrigatório").max(60),
     password: z.string().min(6, "Mínimo de 6 caracteres").max(72),
     email: z
