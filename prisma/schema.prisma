@@ -1,0 +1,110 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL") // file:./data/priquito.db (path configurável via DATA_DIR)
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ---------- Core ----------
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  email        String?  @unique
+  passwordHash String
+  displayName  String
+  avatarPath   String?
+  steamId64    String?  @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  games                UserGame[]
+  availability         Availability[]
+
+  recruitmentsCreated Recruitment[]       @relation("RecruitmentsCreated")
+  recruitmentInvites  RecruitmentInvite[]
+}
+
+model Game {
+  id               String    @id @default(cuid())
+  tgdbId           Int?      @unique // id na TheGamesDB (api.thegamesdb.net)
+  steamAppId       Int?      @unique
+  name             String
+  slug             String    @unique
+  coverUrl         String?
+  genres           String? // JSON serializado (array de strings)
+  platforms        String? // JSON serializado (array de strings)
+  released         String?
+  onGamePass       Boolean   @default(false)
+  gamePassSyncedAt DateTime?
+  tgdbUpdatedAt    DateTime?
+  cachedAt         DateTime  @default(now())
+  refreshedAt      DateTime  @default(now())
+
+  users               UserGame[]
+  recruitments        Recruitment[]
+}
+
+model UserGame {
+  id          String   @id @default(cuid())
+  userId      String
+  gameId      String
+  interested  Boolean  @default(false) // "quero jogar" — base das interseções de match/sorteador/Priquitinder
+  favorite    Boolean  @default(false) // "mais jogado" — peso extra no desempate de rankings
+  owned       Boolean  @default(false) // "possui" — alimenta o filtro "só jogos que todos possuem"
+  blacklisted Boolean  @default(false) // "nunca joga" — exclui só essa pessoa da contagem de interesse desse jogo
+  dismissed   Boolean  @default(false) // deslike no Priquitinder — só "não tenho interesse", não é blacklist
+  source      String   @default("manual") // "manual" | "steam-import"
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, gameId])
+}
+
+model Availability {
+  id        String   @id @default(cuid())
+  userId    String
+  weekday   Int // 0=domingo ... 6=sábado
+  startMin  Int // minutos desde 00:00
+  endMin    Int
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([weekday])
+}
+
+// ---------- Prikedin (recrutamento) ----------
+
+model Recruitment {
+  id          String   @id @default(cuid())
+  createdById String
+  gameId      String
+  scheduledAt DateTime // dia (e, opcionalmente, horário) proposto pelo recrutador (não recorrente)
+  hasTime     Boolean  @default(true) // false = só o dia importa, sem horário específico definido
+  status      String   @default("open") // "open" | "closed"
+  createdAt   DateTime @default(now())
+
+  createdBy User                @relation("RecruitmentsCreated", fields: [createdById], references: [id])
+  game      Game                @relation(fields: [gameId], references: [id])
+  invites   RecruitmentInvite[]
+}
+
+model RecruitmentInvite {
+  id            String    @id @default(cuid())
+  recruitmentId String
+  userId        String
+  source        String // "invited" (o recrutador chamou) | "joined" (usuário entrou pelo feed aberto)
+  status        String    @default("pending") // "pending" | "accepted" | "declined" ("joined" já nasce "accepted")
+  createdAt     DateTime  @default(now())
+  respondedAt   DateTime?
+
+  recruitment Recruitment @relation(fields: [recruitmentId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id])
+
+  @@unique([recruitmentId, userId])
+}

@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# priquito: banco SQLite local e uploads (ficam só na máquina/servidor, não no git)
+/data/*.db
+/data/*.db-journal
+/data/uploads/
+prisma/data/*.db
+prisma/data/*.db-journal
+
+# squarecloud
+*.zip
+
