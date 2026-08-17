@@ -27,10 +27,10 @@
   },
   {
     "route": "/games",
-    "firstLoadUncompressedJsBytes": 472839,
+    "firstLoadUncompressedJsBytes": 472852,
     "firstLoadChunkPaths": [
       ".next\\static\\chunks\\3heq3e6wy_z90.js",
-      ".next\\static\\chunks\\3gn_83yg9h-ff.js",
+      ".next\\static\\chunks\\312v-c_bx35a_.js",
       ".next\\static\\chunks\\310vm2bl3xxpt.js",
       ".next\\static\\chunks\\40j26qmlkjc3v.js",
       ".next\\static\\chunks\\3e4keds9ktjdu.js",

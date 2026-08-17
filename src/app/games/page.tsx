@@ -119,8 +119,8 @@ export default function GamesPage() {
         <p className="muted">Carregando seus jogos...</p>
       ) : (
         <>
+          <GameSection title="Favoritos" items={categorized.favorite} onToggle={toggleFlag} flagsFor={flagsFor} accordion />
           <GameSection title="Com interesse" items={categorized.interested} onToggle={toggleFlag} flagsFor={flagsFor} accordion />
-          <GameSection title="Favoritos" items={categorized.favorite} onToggle={toggleFlag} flagsFor={flagsFor} />
           <GameSection title="Na biblioteca" items={categorized.owned} onToggle={toggleFlag} flagsFor={flagsFor} accordion />
           <GameSection title="Blacklist" items={categorized.blacklisted} onToggle={toggleFlag} flagsFor={flagsFor} />
         </>
