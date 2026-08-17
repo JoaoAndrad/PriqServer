@@ -192,6 +192,7 @@ a {
     width: 260px;
     max-width: 80vw;
     height: 100vh;
+    height: 100dvh; /* 100vh no mobile conta a barra de endereço; 100dvh usa a altura visível real */
     transform: translateX(-100%);
     transition: transform 0.25s ease;
     z-index: 50;
