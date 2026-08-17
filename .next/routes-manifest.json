@@ -1,0 +1,280 @@
+{
+  "version": 3,
+  "pages404": true,
+  "appType": "app",
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "priority": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "onMatchHeaders": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/api/auth/[...nextauth]",
+      "regex": "^/api/auth/(.+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPnextauth": "nxtPnextauth"
+      },
+      "namedRegex": "^/api/auth/(?<nxtPnextauth>.+?)(?:/)?$"
+    },
+    {
+      "page": "/api/games/[id]",
+      "regex": "^/api/games/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/games/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/recruitments/[id]",
+      "regex": "^/api/recruitments/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/recruitments/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/recruitments/[id]/close",
+      "regex": "^/api/recruitments/([^/]+?)/close(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/recruitments/(?<nxtPid>[^/]+?)/close(?:/)?$"
+    },
+    {
+      "page": "/api/recruitments/[id]/invite",
+      "regex": "^/api/recruitments/([^/]+?)/invite(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/recruitments/(?<nxtPid>[^/]+?)/invite(?:/)?$"
+    },
+    {
+      "page": "/api/recruitments/[id]/join",
+      "regex": "^/api/recruitments/([^/]+?)/join(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/recruitments/(?<nxtPid>[^/]+?)/join(?:/)?$"
+    },
+    {
+      "page": "/api/recruitments/[id]/respond",
+      "regex": "^/api/recruitments/([^/]+?)/respond(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/recruitments/(?<nxtPid>[^/]+?)/respond(?:/)?$"
+    },
+    {
+      "page": "/api/uploads/[...path]",
+      "regex": "^/api/uploads/(.+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPpath": "nxtPpath"
+      },
+      "namedRegex": "^/api/uploads/(?<nxtPpath>.+?)(?:/)?$"
+    },
+    {
+      "page": "/prikedin/[recruitmentId]",
+      "regex": "^/prikedin/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPrecruitmentId": "nxtPrecruitmentId"
+      },
+      "namedRegex": "^/prikedin/(?<nxtPrecruitmentId>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_global-error",
+      "regex": "^/_global\\-error(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_global\\-error(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/api/admin/gamepass-sync",
+      "regex": "^/api/admin/gamepass\\-sync(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/gamepass\\-sync(?:/)?$"
+    },
+    {
+      "page": "/api/availability",
+      "regex": "^/api/availability(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/availability(?:/)?$"
+    },
+    {
+      "page": "/api/draw",
+      "regex": "^/api/draw(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/draw(?:/)?$"
+    },
+    {
+      "page": "/api/games",
+      "regex": "^/api/games(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/games(?:/)?$"
+    },
+    {
+      "page": "/api/games/search",
+      "regex": "^/api/games/search(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/games/search(?:/)?$"
+    },
+    {
+      "page": "/api/import/steam",
+      "regex": "^/api/import/steam(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/import/steam(?:/)?$"
+    },
+    {
+      "page": "/api/profile",
+      "regex": "^/api/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/profile(?:/)?$"
+    },
+    {
+      "page": "/api/profile/avatar",
+      "regex": "^/api/profile/avatar(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/profile/avatar(?:/)?$"
+    },
+    {
+      "page": "/api/recruitments",
+      "regex": "^/api/recruitments(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/recruitments(?:/)?$"
+    },
+    {
+      "page": "/api/register",
+      "regex": "^/api/register(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/register(?:/)?$"
+    },
+    {
+      "page": "/api/session",
+      "regex": "^/api/session(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/session(?:/)?$"
+    },
+    {
+      "page": "/api/swipe/next",
+      "regex": "^/api/swipe/next(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/swipe/next(?:/)?$"
+    },
+    {
+      "page": "/api/swipe/vote",
+      "regex": "^/api/swipe/vote(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/swipe/vote(?:/)?$"
+    },
+    {
+      "page": "/api/user-games",
+      "regex": "^/api/user\\-games(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/user\\-games(?:/)?$"
+    },
+    {
+      "page": "/api/users",
+      "regex": "^/api/users(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/users(?:/)?$"
+    },
+    {
+      "page": "/draw",
+      "regex": "^/draw(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/draw(?:/)?$"
+    },
+    {
+      "page": "/favicon.ico",
+      "regex": "^/favicon\\.ico(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/favicon\\.ico(?:/)?$"
+    },
+    {
+      "page": "/games",
+      "regex": "^/games(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/games(?:/)?$"
+    },
+    {
+      "page": "/login",
+      "regex": "^/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/login(?:/)?$"
+    },
+    {
+      "page": "/prikedin",
+      "regex": "^/prikedin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/prikedin(?:/)?$"
+    },
+    {
+      "page": "/prikedin/new",
+      "regex": "^/prikedin/new(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/prikedin/new(?:/)?$"
+    },
+    {
+      "page": "/profile",
+      "regex": "^/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/profile(?:/)?$"
+    },
+    {
+      "page": "/register",
+      "regex": "^/register(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/register(?:/)?$"
+    },
+    {
+      "page": "/swipe",
+      "regex": "^/swipe(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/swipe(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments",
+    "clientParamParsing": false,
+    "dynamicRSCPrerender": false
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

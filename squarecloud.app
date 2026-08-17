@@ -3,4 +3,4 @@ MEMORY=512
 VERSION=recommended
 DISPLAY_NAME=Priquito
 AUTOSTART=true
-START=npm run build && node server.js
+START=npx prisma migrate deploy && NODE_ENV=production node server.js

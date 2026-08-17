@@ -14,7 +14,11 @@
 /coverage
 
 # next.js
-/.next/
+# .next é commitado propositalmente: a Square Cloud (512MB RAM) não tem
+# memória suficiente para rodar `next build`, então buildamos localmente
+# e versionamos o resultado. Não versionar cache de build (pesado e
+# desnecessário em produção).
+/.next/cache/
 /out/
 
 # production
