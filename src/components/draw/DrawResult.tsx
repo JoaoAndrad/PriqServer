@@ -9,7 +9,6 @@ interface FallbackEntry {
 
 export default function DrawResult({
   picked,
-  fallbackUsed,
 }: {
   picked: GameDTO | null;
   fallbackUsed: boolean;
