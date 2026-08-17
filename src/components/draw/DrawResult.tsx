@@ -34,12 +34,6 @@ export default function DrawResult({
         />
       )}
       <h2>{picked.name}</h2>
-      {fallbackUsed && (
-        <p className="muted">
-          Ninguém tinha um jogo em comum entre todos — sorteado entre os jogos com mais gente
-          interessada (ou favoritos) no grupo.
-        </p>
-      )}
     </div>
   );
 }
