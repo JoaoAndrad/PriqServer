@@ -58,6 +58,7 @@ export const userIdsSchema = z.object({
 export const drawSchema = z.object({
   userIds: z.array(z.string().min(1)).min(1),
   requireOwned: z.boolean().optional(),
+  modeFilter: z.enum(["any", "online", "coop"]).optional(),
 });
 
 export const createRecruitmentSchema = z.object({

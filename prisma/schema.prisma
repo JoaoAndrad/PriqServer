@@ -36,6 +36,7 @@ model Game {
   coverUrl         String?
   genres           String? // JSON serializado (array de strings)
   platforms        String? // JSON serializado (array de strings)
+  modes            String? // JSON serializado (array de strings) — categorias da Steam (Multiplayer, Co-op, Online Co-op, etc.)
   released         String?
   onGamePass       Boolean   @default(false)
   gamePassSyncedAt DateTime?

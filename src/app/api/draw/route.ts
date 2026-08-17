@@ -14,7 +14,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "userIds é obrigatório" }, { status: 400 });
   }
 
-  const result = await drawGame(parsed.data.userIds, parsed.data.requireOwned ?? false);
+  const result = await drawGame(
+    parsed.data.userIds,
+    parsed.data.requireOwned ?? false,
+    parsed.data.modeFilter ?? "any",
+  );
 
   const gameIds = [
     ...(result.pickedGameId ? [result.pickedGameId] : []),

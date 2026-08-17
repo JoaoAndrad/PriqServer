@@ -110,6 +110,39 @@ export async function getOwnedGames(steamId64: string): Promise<SteamOwnedGame[]
 
 export { steamCoverUrl };
 
+export interface SteamGameTags {
+  genres: string[];
+  modes: string[]; // categories da Steam (Multiplayer, Co-op, Online Co-op, etc.)
+}
+
+/**
+ * Busca genres/categories de um app na Steam Store (appdetails). Usado pra
+ * classificar modo de jogo (online/co-op) e gênero. Nunca derruba a aplicação
+ * se a Steam estiver fora do ar — retorna listas vazias nesse caso.
+ */
+export async function getSteamGameTags(appid: number): Promise<SteamGameTags> {
+  try {
+    const url = new URL("https://store.steampowered.com/api/appdetails");
+    url.searchParams.set("appids", String(appid));
+    url.searchParams.set("l", "english");
+    url.searchParams.set("cc", "us");
+
+    const res = await fetch(url, { next: { revalidate: 0 } });
+    if (!res.ok) return { genres: [], modes: [] };
+
+    const data = await res.json();
+    const entry = data?.[String(appid)];
+    if (!entry?.success) return { genres: [], modes: [] };
+
+    const genres = (entry.data?.genres ?? []).map((g: { description: string }) => g.description);
+    const modes = (entry.data?.categories ?? []).map((c: { description: string }) => c.description);
+    return { genres, modes };
+  } catch (err) {
+    console.error(`Erro ao consultar tags da Steam para appid ${appid}:`, err);
+    return { genres: [], modes: [] };
+  }
+}
+
 export interface SteamStoreSearchItem {
   id: number;
   name: string;

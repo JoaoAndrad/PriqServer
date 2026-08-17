@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { computeCommonGames } from "@/lib/matching/commonGames";
+import { ensureGameModes, matchesModeFilter, type ModeFilter } from "@/lib/games/modes";
 
 export interface FallbackEntry {
   gameId: string;
@@ -23,20 +24,38 @@ export function pickRandom<T>(items: T[]): T {
   return items[idx];
 }
 
+/** Filtra jogos pelo modo pedido, garantindo antes que `modes` esteja no cache. */
+async function filterByMode(gameIds: string[], modeFilter: ModeFilter): Promise<string[]> {
+  if (modeFilter === "any" || gameIds.length === 0) return gameIds;
+
+  const games = await prisma.game.findMany({ where: { id: { in: gameIds } } });
+  const byId = await ensureGameModes(games);
+  return gameIds.filter((id) => {
+    const game = byId.get(id);
+    return game ? matchesModeFilter(game, modeFilter) : false;
+  });
+}
+
 export async function drawGame(
   userIds: string[],
   requireOwned = false,
+  modeFilter: ModeFilter = "any",
 ): Promise<DrawResult> {
   const common = await computeCommonGames(userIds, { requireOwned });
 
   if (common.length > 0) {
-    const candidateGameIds = common.map((c) => c.gameId);
-    return {
-      pickedGameId: pickRandom(candidateGameIds),
-      candidateGameIds,
-      fallback: [],
-      fallbackUsed: false,
-    };
+    const candidateGameIds = await filterByMode(
+      common.map((c) => c.gameId),
+      modeFilter,
+    );
+    if (candidateGameIds.length > 0) {
+      return {
+        pickedGameId: pickRandom(candidateGameIds),
+        candidateGameIds,
+        fallback: [],
+        fallbackUsed: false,
+      };
+    }
   }
 
   // fallback: união dos jogos "na lista" (interesse, favorito ou possui), ranqueado
@@ -58,7 +77,10 @@ export async function drawGame(
     stats.set(ug.gameId, s);
   }
 
+  const allowedIds = new Set(await filterByMode(Array.from(stats.keys()), modeFilter));
+
   const fallback: FallbackEntry[] = Array.from(stats.entries())
+    .filter(([gameId]) => allowedIds.has(gameId))
     .map(([gameId, s]) => ({
       gameId,
       interestedCount: s.interested.size,

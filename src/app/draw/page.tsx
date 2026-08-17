@@ -23,6 +23,7 @@ export default function DrawPage() {
   const [selectedUsers, setSelectedUsers] = useState<UserSummaryDTO[]>([]);
   const [personModalOpen, setPersonModalOpen] = useState(false);
   const [requireOwned, setRequireOwned] = useState(false);
+  const [modeFilter, setModeFilter] = useState<"any" | "online" | "coop">("any");
   const [picked, setPicked] = useState<GameDTO | null>(null);
   const [fallbackUsed, setFallbackUsed] = useState(false);
   const [fallback, setFallback] = useState<FallbackEntry[]>([]);
@@ -49,7 +50,11 @@ export default function DrawPage() {
       fetch("/api/draw", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userIds: selectedUsers.map((u) => u.id), requireOwned }),
+        body: JSON.stringify({
+          userIds: selectedUsers.map((u) => u.id),
+          requireOwned,
+          modeFilter,
+        }),
       }),
       sleep(1500),
     ]);
@@ -109,6 +114,26 @@ export default function DrawPage() {
         />
         Só jogos que todo mundo possui
       </label>
+
+      <div style={{ display: "flex", gap: 14, flexWrap: "wrap", margin: "0 0 16px" }}>
+        {(
+          [
+            { value: "any", label: "Qualquer modo" },
+            { value: "online", label: "Só online" },
+            { value: "coop", label: "Só co-op" },
+          ] as const
+        ).map((opt) => (
+          <label key={opt.value} style={{ display: "flex", gap: 6, alignItems: "center" }}>
+            <input
+              type="radio"
+              name="modeFilter"
+              checked={modeFilter === opt.value}
+              onChange={() => setModeFilter(opt.value)}
+            />
+            {opt.label}
+          </label>
+        ))}
+      </div>
 
       <button onClick={draw} disabled={selectedUsers.length === 0 || loading}>
         {loading ? "Sorteando..." : "Sortear"}

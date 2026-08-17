@@ -7,6 +7,7 @@ export interface GameDTO {
   coverUrl: string | null;
   genres: string | null;
   platforms: string | null;
+  modes: string | null;
   released: string | null;
   onGamePass: boolean;
 }
