@@ -33,6 +33,7 @@ export default function ProfilePage() {
 
   const [steamProfile, setSteamProfile] = useState("");
   const [steamError, setSteamError] = useState<string | null>(null);
+  const [steamSearching, setSteamSearching] = useState(false);
   const [steamPreview, setSteamPreview] = useState<SteamPreviewItem[] | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [importing, setImporting] = useState(false);
@@ -78,21 +79,32 @@ export default function ProfilePage() {
 
   async function searchSteam(e: React.FormEvent) {
     e.preventDefault();
+    if (steamSearching) return;
+    setSteamSearching(true);
     setSteamError(null);
     setSteamPreview(null);
-    const res = await fetch("/api/import/steam", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ steamProfile }),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      setSteamError(data.error ?? "Falha ao importar");
-      return;
+    try {
+      const res = await fetch("/api/import/steam", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ steamProfile }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setSteamError(data.error ?? "Falha ao importar");
+        return;
+      }
+      setSteamPreview(data.items);
+      setSelected(new Set(data.items.map((i: SteamPreviewItem) => i.gameId)));
+      setSteamModalOpen(false);
+      await fetch("/api/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ steamId64: steamProfile }),
+      });
+    } finally {
+      setSteamSearching(false);
     }
-    setSteamPreview(data.items);
-    setSelected(new Set(data.items.map((i: SteamPreviewItem) => i.gameId)));
-    setSteamModalOpen(false);
   }
 
   function toggleSelected(gameId: string) {
@@ -104,21 +116,22 @@ export default function ProfilePage() {
     });
   }
 
-  async function confirmImport() {
+  // Importa automaticamente sempre que a seleção muda, sem precisar de um
+  // botão de confirmação separado.
+  useEffect(() => {
+    if (!steamPreview || selected.size === 0) return;
     setImporting(true);
-    await fetch("/api/import/steam", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ gameIds: Array.from(selected) }),
-    });
-    setImporting(false);
-    setSteamPreview(null);
-    await fetch("/api/profile", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ steamId64: steamProfile }),
-    });
-  }
+    const timeout = setTimeout(async () => {
+      await fetch("/api/import/steam", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gameIds: Array.from(selected) }),
+      });
+      setImporting(false);
+    }, 500);
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected, steamPreview]);
 
   if (!profile) return <p className="muted">Carregando...</p>;
 
@@ -212,7 +225,8 @@ export default function ProfilePage() {
           <div style={{ marginTop: 16 }}>
             <p className="muted">
               {steamPreview.length} jogos encontrados. Desmarque os que não quer importar como
-              &quot;Possui&quot;.
+              &quot;Possui&quot; — a importação é salva automaticamente.
+              {importing && " Salvando..."}
             </p>
             <div className="game-grid">
               {steamPreview.map((item) => (
@@ -230,9 +244,6 @@ export default function ProfilePage() {
                 </label>
               ))}
             </div>
-            <button onClick={confirmImport} disabled={importing} style={{ marginTop: 12 }}>
-              {importing ? "Importando..." : `Importar ${selected.size} jogos`}
-            </button>
           </div>
         )}
       </div>
@@ -252,7 +263,9 @@ export default function ProfilePage() {
               style={{ flex: 1 }}
               autoFocus
             />
-            <button type="submit">Buscar</button>
+            <button type="submit" disabled={steamSearching}>
+              {steamSearching ? "Buscando..." : "Buscar"}
+            </button>
           </form>
           {steamError && <p className="error">{steamError}</p>}
         </Modal>
