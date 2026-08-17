@@ -41,6 +41,10 @@ export async function searchGames(query: string) {
 
   const byId = new Map(local.map((g) => [g.id, g]));
 
+  if (!THEGAMESDB_API_KEY) {
+    console.warn(`[games/search] "${trimmed}" -> thegamesdb PULADA (THEGAMESDB_API_KEY não configurada)`);
+  }
+
   const [steamResults, tgdbResults] = await Promise.all([
     searchSteamStore(trimmed),
     THEGAMESDB_API_KEY ? searchTgdbGames(trimmed) : Promise.resolve([]),
@@ -76,7 +80,7 @@ export async function searchGames(query: string) {
     ),
   );
   for (const game of tgdbUpserted) byId.set(game.id, game);
-  if (tgdbUpserted.length > 0) {
+  if (THEGAMESDB_API_KEY) {
     console.log(`[games/search] "${trimmed}" -> thegamesdb (${tgdbUpserted.length})`);
   }
 
