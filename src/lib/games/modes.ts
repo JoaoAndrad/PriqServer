@@ -54,9 +54,13 @@ export async function ensureGameModes(games: Game[]): Promise<Map<string, Game>>
         return prisma.game.update({
           where: { id: g.id },
           data: {
+            // `missing` já filtra por modes===null (nunca resolvido/precisa
+            // reconsultar), então sobrescreve tudo direto — usar `g.genres ??`
+            // aqui deixava "[]" (string vazia, não null) travado pra sempre,
+            // já que "[]" passa no ?? e nunca era substituído pelo dado novo.
             modes: JSON.stringify(tags.modes),
-            genres: g.genres ?? JSON.stringify(tags.genres),
-            description: g.description ?? tags.description,
+            genres: JSON.stringify(tags.genres),
+            description: tags.description,
           },
         });
       }),
