@@ -22,6 +22,9 @@ body {
   padding: 0;
   background: var(--bg);
   color: var(--text);
+  /* evita que o card do /swipe (translateX pra fora da tela ao arrastar/votar)
+     estique a página com scroll horizontal */
+  overflow-x: hidden;
 }
 
 a {
