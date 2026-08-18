@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { syncGamePassCatalog } from "@/lib/gamepass/sync";
 import { fetchSteamFeaturedGames, resolveSteamCoverUrl, getSteamGameTags } from "@/lib/steam/client";
 import { previewSteamLibrary, confirmSteamImport } from "@/lib/steam/import";
+import { ensureGameModes } from "@/lib/games/modes";
 
 /**
  * Registro de scripts de manutenção rodáveis via POST /api/admin/run-script.
@@ -140,6 +141,33 @@ export const ADMIN_SCRIPTS = {
     );
 
     return { games, liveTags };
+  },
+
+  /**
+   * Reconserta jogos que ficaram com genres/modes vazios e description nula
+   * — sintoma de terem sido consultados durante uma rajada que bateu rate
+   * limit da Steam appdetails (a resposta vinha success:false, tratada como
+   * "sem gênero mesmo" e nunca mais reconsultada). ensureGameModes só
+   * reprocessa jogos com modes===null, então resetamos modes pra null nos
+   * suspeitos e deixamos ensureGameModes (já com throttle) tentar de novo.
+   */
+  async "repair-empty-game-details"() {
+    const suspects = await prisma.game.findMany({
+      where: { steamAppId: { not: null }, modes: "[]", genres: "[]", description: null },
+    });
+    if (suspects.length === 0) return { suspects: 0, repaired: 0 };
+
+    await prisma.game.updateMany({
+      where: { id: { in: suspects.map((g) => g.id) } },
+      data: { modes: null },
+    });
+
+    const byId = await ensureGameModes(suspects.map((g) => ({ ...g, modes: null })));
+    const repaired = Array.from(byId.values()).filter(
+      (g) => g.modes !== "[]" || g.genres !== "[]" || g.description !== null,
+    ).length;
+
+    return { suspects: suspects.length, repaired };
   },
 } satisfies Record<string, (args?: Record<string, unknown>) => Promise<unknown>>;
 
