@@ -23,8 +23,10 @@ export function matchesModeFilter(game: Pick<Game, "modes">, filter: ModeFilter)
   return modes.some((m) => wanted.includes(m));
 }
 
-const APPDETAILS_BATCH_SIZE = 3;
-const APPDETAILS_BATCH_DELAY_MS = 400;
+// 1 por vez com um intervalo de ~1s — 3 por lote a cada 400ms ainda batia no
+// rate limit da Steam appdetails em lotes grandes (ex.: refresh de 300+ jogos).
+const APPDETAILS_BATCH_SIZE = 1;
+const APPDETAILS_BATCH_DELAY_MS = 1000;
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
