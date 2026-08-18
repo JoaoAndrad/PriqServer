@@ -7,12 +7,14 @@ const TIER_LABEL: Record<RankedCandidate["tier"], string> = {
   favorite: "Favorito",
   interested: "Interesse",
   other: "Possui",
+  none: "Sem marcação",
 };
 
 const TIER_BADGE_CLASS: Record<RankedCandidate["tier"], string> = {
   favorite: "badge favorite",
   interested: "badge interested",
   other: "badge owned",
+  none: "badge",
 };
 
 export default function CandidateRankingList({
@@ -25,7 +27,7 @@ export default function CandidateRankingList({
   onToggle: (userId: string) => void;
 }) {
   if (candidates.length === 0) {
-    return <p className="muted">Ninguém do grupo tem esse jogo marcado ainda.</p>;
+    return <p className="muted">Ninguém pra convidar — todo mundo já foi convidado ou colocou o jogo na blacklist.</p>;
   }
 
   return (

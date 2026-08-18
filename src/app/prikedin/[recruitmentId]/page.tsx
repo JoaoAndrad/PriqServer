@@ -198,7 +198,7 @@ export default function RecruitmentDetailPage() {
       {canInvite && recruitment.status === "open" && (
         <div className="card">
           <h2>Convidar candidatos</h2>
-          <p className="muted">Priorizado por favorito &gt; interesse &gt; demais.</p>
+          <p className="muted">Priorizado por favorito &gt; interesse &gt; possui &gt; demais.</p>
           <CandidateRankingList
             candidates={candidates.filter(
               (c) => !recruitment.invites.some((i) => i.userId === c.userId),
