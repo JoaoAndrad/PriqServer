@@ -88,7 +88,7 @@ export async function drawGame(
       favorite: new Set<string>(),
       owned: new Set<string>(),
     };
-    s.interested.add(ug.userId);
+    if (ug.interested) s.interested.add(ug.userId);
     if (ug.favorite) s.favorite.add(ug.userId);
     if (ug.owned) s.owned.add(ug.userId);
     stats.set(ug.gameId, s);

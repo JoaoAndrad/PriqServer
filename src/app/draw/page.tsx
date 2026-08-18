@@ -7,7 +7,22 @@ import DrawResult from "@/components/draw/DrawResult";
 import TransitionOverlay from "@/components/ui/TransitionOverlay";
 import { CloseIcon } from "@/components/ui/icons";
 import { sleep } from "@/lib/sleep";
+import { coverSrc } from "@/lib/games/coverProxy";
 import type { GameDTO, UserSummaryDTO } from "@/types";
+
+/** Espera a imagem carregar de verdade (cache do navegador ou rede) antes de
+ * revelar o resultado — sem isso o fetch do /api/draw termina rápido mas o
+ * <img> só começa a baixar a capa quando o card monta, e o pop-in acontece
+ * depois que a animação já sumiu. Nunca trava a revelação: se a capa falhar,
+ * resolve mesmo assim. */
+function preloadImage(src: string): Promise<void> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = () => resolve();
+    img.src = src;
+  });
+}
 
 interface NameLists {
   interestedBy: string[];
@@ -52,32 +67,35 @@ export default function DrawPage() {
   async function draw() {
     if (selectedUsers.length === 0) return;
     setLoading(true);
+
+    // resolve o sorteio (fetch + capa pré-carregada) ANTES de começar a
+    // animação — só então o overlay entra, cobrindo por 1.5s um card que já
+    // está pronto e montado por baixo (só escondido pelo z-index). Assim a
+    // duração da animação é só flourish, nunca tempo de espera de rede.
+    const data = await fetch("/api/draw", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userIds: selectedUsers.map((u) => u.id),
+        requireOwned,
+        modeFilter,
+      }),
+    }).then((res) => res.json());
+
+    const url = coverSrc(data.picked?.coverUrl);
+    if (url) await preloadImage(url);
+
     setShowTransition(true);
-
-    // paraleliza o fetch+parse inteiro com o sleep (não só o fetch) — senão o
-    // res.json() rodava depois do Promise.all resolver, somando um atraso
-    // extra depois que a animação já tinha "acabado" visualmente (CSS de
-    // 1.5s), e o resultado só aparecia bem depois da tela parar de girar.
-    const [data] = await Promise.all([
-      fetch("/api/draw", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userIds: selectedUsers.map((u) => u.id),
-          requireOwned,
-          modeFilter,
-        }),
-      }).then((res) => res.json()),
-      sleep(1500),
-    ]);
-
     setPicked(data.picked ?? null);
     setPickedNames(data.pickedNames ?? null);
     setFallbackUsed(data.fallbackUsed ?? false);
     setFallback(data.fallback ?? []);
     setDrawn(true);
-    setLoading(false);
+
+    await sleep(1500);
+
     setShowTransition(false);
+    setLoading(false);
   }
 
   return (

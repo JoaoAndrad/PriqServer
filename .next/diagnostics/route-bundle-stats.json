@@ -14,10 +14,10 @@
   },
   {
     "route": "/draw",
-    "firstLoadUncompressedJsBytes": 473812,
+    "firstLoadUncompressedJsBytes": 473925,
     "firstLoadChunkPaths": [
       ".next\\static\\chunks\\3heq3e6wy_z90.js",
-      ".next\\static\\chunks\\253prthil-939.js",
+      ".next\\static\\chunks\\05-gisjy55kt7.js",
       ".next\\static\\chunks\\310vm2bl3xxpt.js",
       ".next\\static\\chunks\\40j26qmlkjc3v.js",
       ".next\\static\\chunks\\3e4keds9ktjdu.js",
