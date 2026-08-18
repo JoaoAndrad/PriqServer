@@ -9,7 +9,9 @@ export default auth((req) => {
   const isPublic =
     PUBLIC_PATHS.includes(pathname) ||
     pathname.startsWith("/api/auth") ||
-    pathname === "/api/register";
+    pathname === "/api/register" ||
+    // se autentica sozinho via header x-admin-key, não via sessão
+    pathname === "/api/admin/run-script";
 
   if (!req.auth && !isPublic) {
     const loginUrl = new URL("/login", req.nextUrl.origin);
