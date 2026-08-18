@@ -154,6 +154,10 @@ export interface SteamGameTags {
   genres: string[];
   modes: string[]; // categories da Steam (Multiplayer, Co-op, Online Co-op, etc.)
   description: string | null; // short_description, já em português (l=brazilian — "portuguese" é PT-PT na Steam, cai pro inglês quando só existe tradução PT-BR)
+  /** true quando a Steam respondeu 429 (rate limit) — quem chama deve parar
+   * de bater na API imediatamente em vez de continuar processando o resto do
+   * lote, todos fadados a falhar do mesmo jeito. */
+  rateLimited: boolean;
 }
 
 /**
@@ -163,7 +167,7 @@ export interface SteamGameTags {
  * estiver fora do ar — retorna vazio nesse caso.
  */
 export async function getSteamGameTags(appid: number): Promise<SteamGameTags> {
-  const empty = { genres: [], modes: [], description: null };
+  const empty = { genres: [], modes: [], description: null, rateLimited: false };
   try {
     const url = new URL("https://store.steampowered.com/api/appdetails");
     url.searchParams.set("appids", String(appid));
@@ -171,6 +175,7 @@ export async function getSteamGameTags(appid: number): Promise<SteamGameTags> {
     url.searchParams.set("cc", "BR");
 
     const res = await fetch(url, { next: { revalidate: 0 } });
+    if (res.status === 429) return { ...empty, rateLimited: true };
     if (!res.ok) return empty;
 
     const data = await res.json();
@@ -180,7 +185,7 @@ export async function getSteamGameTags(appid: number): Promise<SteamGameTags> {
     const genres = (entry.data?.genres ?? []).map((g: { description: string }) => g.description);
     const modes = (entry.data?.categories ?? []).map((c: { description: string }) => c.description);
     const description = (entry.data?.short_description as string | undefined)?.trim() || null;
-    return { genres, modes, description };
+    return { genres, modes, description, rateLimited: false };
   } catch (err) {
     console.error(`Erro ao consultar tags da Steam para appid ${appid}:`, err);
     return empty;
