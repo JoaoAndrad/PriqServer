@@ -61,8 +61,11 @@ export async function resolveSteamId64(input: string): Promise<string> {
     throw new SteamImportError("STEAM_API_KEY não configurada.");
   }
 
-  // aceita também uma URL completa tipo steamcommunity.com/id/nome
+  // aceita também uma URL completa tipo steamcommunity.com/id/nome ou
+  // steamcommunity.com/profiles/<steamid64> — esse segundo caso já vem com o
+  // id pronto depois de tirar o prefixo, sem precisar resolver vanity nenhuma.
   const vanity = trimmed.replace(/^https?:\/\/(www\.)?steamcommunity\.com\/(id|profiles)\//, "").replace(/\/$/, "");
+  if (/^\d{17}$/.test(vanity)) return vanity;
 
   const url = new URL(`${STEAM_BASE_URL}/ISteamUser/ResolveVanityURL/v0001/`);
   url.searchParams.set("key", STEAM_API_KEY);

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { syncGamePassCatalog } from "@/lib/gamepass/sync";
 import { fetchSteamFeaturedGames, resolveSteamCoverUrl } from "@/lib/steam/client";
+import { previewSteamLibrary, confirmSteamImport } from "@/lib/steam/import";
 
 /**
  * Registro de scripts de manutenção rodáveis via POST /api/admin/run-script.
@@ -81,6 +82,41 @@ export const ADMIN_SCRIPTS = {
 
     const { count } = await prisma.game.deleteMany({ where });
     return { dryRun: false, deleted: count };
+  },
+
+  /** Lista usuários (id, username, displayName) — pra mapear nome -> conta antes de importar. */
+  async "list-users"() {
+    const users = await prisma.user.findMany({
+      select: { id: true, username: true, displayName: true, steamId64: true },
+      orderBy: { username: "asc" },
+    });
+    return { users };
+  },
+
+  /**
+   * Importa a biblioteca da Steam de um perfil pra um usuário já existente
+   * (mesma lógica de /api/import/steam, só que disparável sem UI). Marca os
+   * jogos como `owned: true` (source: steam-import) e `discoverable: true`.
+   * args: { username: string, steamProfile: string } — steamProfile aceita
+   * steamId64, vanity URL ou o link completo do perfil.
+   */
+  async "import-steam-library"(args?: Record<string, unknown>) {
+    const username = args?.username as string | undefined;
+    const steamProfile = args?.steamProfile as string | undefined;
+    if (!username || !steamProfile) {
+      throw new Error("informe { username, steamProfile } em args");
+    }
+
+    const user = await prisma.user.findUnique({ where: { username } });
+    if (!user) throw new Error(`usuário "${username}" não encontrado`);
+
+    const preview = await previewSteamLibrary(steamProfile);
+    await confirmSteamImport(
+      user.id,
+      preview.map((g) => g.gameId),
+    );
+
+    return { username, imported: preview.length, games: preview.map((g) => g.name) };
   },
 } satisfies Record<string, (args?: Record<string, unknown>) => Promise<unknown>>;
 
