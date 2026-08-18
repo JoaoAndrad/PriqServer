@@ -145,6 +145,12 @@
       "namedRegex": "^/api/admin/gamepass\\-sync(?:/)?$"
     },
     {
+      "page": "/api/admin/run-script",
+      "regex": "^/api/admin/run\\-script(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/run\\-script(?:/)?$"
+    },
+    {
       "page": "/api/availability",
       "regex": "^/api/availability(?:/)?$",
       "routeKeys": {},

@@ -25,3 +25,8 @@ export const GAMEPASS_SYNC_TTL_DAYS = Number(
 
 export const THEGAMESDB_API_KEY = process.env.THEGAMESDB_API_KEY ?? "";
 export const STEAM_API_KEY = process.env.STEAM_API_KEY ?? "";
+
+// Chave pra autorizar /api/admin/run-script (scripts de manutenção do banco
+// em produção). Sem ela configurada, o endpoint recusa qualquer chamada —
+// não existe fallback "aberto por padrão".
+export const ADMIN_SCRIPT_KEY = process.env.ADMIN_SCRIPT_KEY ?? "";
