@@ -144,16 +144,20 @@ export const ADMIN_SCRIPTS = {
   },
 
   /**
-   * Reconserta jogos que ficaram com genres/modes vazios e description nula
-   * — sintoma de terem sido consultados durante uma rajada que bateu rate
-   * limit da Steam appdetails (a resposta vinha success:false, tratada como
-   * "sem gênero mesmo" e nunca mais reconsultada). ensureGameModes só
-   * reprocessa jogos com modes===null, então resetamos modes pra null nos
-   * suspeitos e deixamos ensureGameModes (já com throttle) tentar de novo.
+   * Reconserta jogos que ficaram com genres e/ou modes vazios — sintoma de
+   * terem sido consultados durante uma rajada que bateu rate limit da Steam
+   * appdetails (a resposta vinha success:false, tratada como "sem gênero
+   * mesmo" e nunca mais reconsultada). Usa OR (não AND) porque um reparo
+   * anterior pode ter corrigido só parte dos campos (ex.: description e
+   * modes vieram certos numa tentativa, genres ficou "[]" por um bug à parte
+   * — esse jogo não tem mais description:null pra bater num filtro com AND).
+   * ensureGameModes só reprocessa jogos com modes===null, então resetamos
+   * modes pra null nos suspeitos e deixamos ele (já com throttle) tentar de
+   * novo.
    */
   async "repair-empty-game-details"() {
     const suspects = await prisma.game.findMany({
-      where: { steamAppId: { not: null }, modes: "[]", genres: "[]", description: null },
+      where: { steamAppId: { not: null }, OR: [{ modes: "[]" }, { genres: "[]" }] },
     });
     if (suspects.length === 0) return { suspects: 0, repaired: 0 };
 
