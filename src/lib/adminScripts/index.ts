@@ -192,8 +192,32 @@ export const ADMIN_SCRIPTS = {
       data: { modes: null },
     });
 
-    const byId = await ensureGameModes(games.map((g) => ({ ...g, modes: null })));
-    return { total: games.length, refreshed: byId.size };
+    await ensureGameModes(games.map((g) => ({ ...g, modes: null })));
+
+    // consulta o banco de novo em vez de confiar na contagem interna do
+    // ensureGameModes — se ele parar cedo por rate limit, o Map devolvido
+    // ainda contém todas as entradas de entrada (só que sem terem sido
+    // atualizadas de verdade), o que mentia um "refreshed" igual ao total.
+    const stillPending = await prisma.game.count({
+      where: { id: { in: games.map((g) => g.id) }, modes: null },
+    });
+    return { total: games.length, done: games.length - stillPending, stillPending };
+  },
+
+  /**
+   * Zera modes/genres/description de todo jogo com steamAppId, SEM apagar o
+   * jogo em si nem bater na Steam agora — deixa repovoar aos poucos e
+   * organicamente conforme /games, /draw e /swipe forem usados normalmente
+   * (cada um já chama ensureGameModes/ensureGameDetails sob demanda, com o
+   * throttle de ~1 req/s e parada automática em rate limit). Evita fazer uma
+   * rajada de centenas de chamadas de uma vez só.
+   */
+  async "reset-game-details"() {
+    const { count } = await prisma.game.updateMany({
+      where: { steamAppId: { not: null } },
+      data: { modes: null, genres: null, description: null },
+    });
+    return { reset: count };
   },
 } satisfies Record<string, (args?: Record<string, unknown>) => Promise<unknown>>;
 
