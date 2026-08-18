@@ -71,6 +71,14 @@
       "namedRegex": "^/api/recruitments/(?<nxtPid>[^/]+?)/join(?:/)?$"
     },
     {
+      "page": "/api/recruitments/[id]/leave",
+      "regex": "^/api/recruitments/([^/]+?)/leave(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/recruitments/(?<nxtPid>[^/]+?)/leave(?:/)?$"
+    },
+    {
       "page": "/api/recruitments/[id]/respond",
       "regex": "^/api/recruitments/([^/]+?)/respond(?:/)?$",
       "routeKeys": {

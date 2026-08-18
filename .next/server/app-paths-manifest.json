@@ -15,6 +15,7 @@
   "/api/recruitments/[id]/close/route": "app/api/recruitments/[id]/close/route.js",
   "/api/recruitments/[id]/invite/route": "app/api/recruitments/[id]/invite/route.js",
   "/api/recruitments/[id]/join/route": "app/api/recruitments/[id]/join/route.js",
+  "/api/recruitments/[id]/leave/route": "app/api/recruitments/[id]/leave/route.js",
   "/api/recruitments/[id]/respond/route": "app/api/recruitments/[id]/respond/route.js",
   "/api/recruitments/[id]/route": "app/api/recruitments/[id]/route.js",
   "/api/recruitments/route": "app/api/recruitments/route.js",
