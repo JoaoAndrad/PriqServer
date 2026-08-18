@@ -8,6 +8,16 @@ import type { GameDTO } from "@/types";
 const VOTE_THRESHOLD = 100;
 const EXIT_DISTANCE = 600;
 
+function parseGenres(genres: string | null): string[] {
+  if (!genres) return [];
+  try {
+    const parsed = JSON.parse(genres);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 export default function SwipeCard({
   game,
   ownedByOthers,
@@ -53,6 +63,7 @@ export default function SwipeCard({
 
   const rotation = offsetX / 20;
   const opacity = exiting ? 0 : 1;
+  const genres = parseGenres(game.genres);
 
   return (
     <div className="swipe-card-stage">
@@ -76,6 +87,14 @@ export default function SwipeCard({
         <div className="body">
           {ownedByOthers && <span className="badge owned">Na biblioteca de alguém</span>}
           <h2 style={{ margin: 0 }}>{game.name}</h2>
+          {genres.length > 0 && (
+            <div className="swipe-genres">
+              {genres.map((g) => (
+                <span key={g} className="badge">{g}</span>
+              ))}
+            </div>
+          )}
+          {game.description && <p className="swipe-description">{game.description}</p>}
         </div>
       </div>
 

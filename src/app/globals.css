@@ -511,6 +511,21 @@ table {
   text-align: center;
 }
 
+.swipe-genres {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.swipe-description {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: left;
+}
+
 .swipe-badge {
   position: absolute;
   top: 20px;

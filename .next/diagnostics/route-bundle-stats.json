@@ -39,6 +39,19 @@
     ]
   },
   {
+    "route": "/swipe",
+    "firstLoadUncompressedJsBytes": 472958,
+    "firstLoadChunkPaths": [
+      ".next\\static\\chunks\\3heq3e6wy_z90.js",
+      ".next\\static\\chunks\\1bftckzxghhfu.js",
+      ".next\\static\\chunks\\310vm2bl3xxpt.js",
+      ".next\\static\\chunks\\40j26qmlkjc3v.js",
+      ".next\\static\\chunks\\3e4keds9ktjdu.js",
+      ".next\\static\\chunks\\2hbx0u5pc3csk.js",
+      ".next\\static\\chunks\\turbopack-27ceoyevqspxg.js"
+    ]
+  },
+  {
     "route": "/games",
     "firstLoadUncompressedJsBytes": 472852,
     "firstLoadChunkPaths": [
@@ -57,19 +70,6 @@
     "firstLoadChunkPaths": [
       ".next\\static\\chunks\\3heq3e6wy_z90.js",
       ".next\\static\\chunks\\0vtfy1q6m4s6t.js",
-      ".next\\static\\chunks\\310vm2bl3xxpt.js",
-      ".next\\static\\chunks\\40j26qmlkjc3v.js",
-      ".next\\static\\chunks\\3e4keds9ktjdu.js",
-      ".next\\static\\chunks\\2hbx0u5pc3csk.js",
-      ".next\\static\\chunks\\turbopack-27ceoyevqspxg.js"
-    ]
-  },
-  {
-    "route": "/swipe",
-    "firstLoadUncompressedJsBytes": 472638,
-    "firstLoadChunkPaths": [
-      ".next\\static\\chunks\\3heq3e6wy_z90.js",
-      ".next\\static\\chunks\\0dsvxl6bk2dk1.js",
       ".next\\static\\chunks\\310vm2bl3xxpt.js",
       ".next\\static\\chunks\\40j26qmlkjc3v.js",
       ".next\\static\\chunks\\3e4keds9ktjdu.js",

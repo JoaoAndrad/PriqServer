@@ -24,9 +24,10 @@ export function matchesModeFilter(game: Pick<Game, "modes">, filter: ModeFilter)
 }
 
 /**
- * Garante que `modes`/`genres` estejam populados (via Steam) pros jogos informados
- * que ainda não têm esse dado no cache. Só jogos com steamAppId são resolvíveis —
- * jogos só da TheGamesDB ficam sem modo (nunca batem em filtro online/co-op).
+ * Garante que `modes`/`genres`/`description` estejam populados (via Steam)
+ * pros jogos informados que ainda não têm esse dado no cache. Só jogos com
+ * steamAppId são resolvíveis — jogos só da TheGamesDB ficam sem modo/descrição
+ * (nunca batem em filtro online/co-op, e não mostram descrição no /swipe).
  */
 export async function ensureGameModes(games: Game[]): Promise<Map<string, Game>> {
   const byId = new Map(games.map((g) => [g.id, g]));
@@ -41,6 +42,7 @@ export async function ensureGameModes(games: Game[]): Promise<Map<string, Game>>
           data: {
             modes: JSON.stringify(tags.modes),
             genres: g.genres ?? JSON.stringify(tags.genres),
+            description: g.description ?? tags.description,
           },
         });
       }),
@@ -49,4 +51,10 @@ export async function ensureGameModes(games: Game[]): Promise<Map<string, Game>>
   }
 
   return byId;
+}
+
+/** Mesma lógica de ensureGameModes, mas pra um único jogo — usado no /api/swipe/next. */
+export async function ensureGameDetails(game: Game): Promise<Game> {
+  const byId = await ensureGameModes([game]);
+  return byId.get(game.id) ?? game;
 }

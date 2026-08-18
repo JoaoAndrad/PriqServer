@@ -35,6 +35,7 @@ model Game {
   slug             String    @unique
   coverUrl         String?
   genres           String? // JSON serializado (array de strings)
+  description      String? // short_description da Steam appdetails, em português
   platforms        String? // JSON serializado (array de strings)
   modes            String? // JSON serializado (array de strings) — categorias da Steam (Multiplayer, Co-op, Online Co-op, etc.)
   released         String?

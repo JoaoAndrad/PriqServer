@@ -153,33 +153,37 @@ export async function fetchSteamFeaturedGames(): Promise<SteamFeaturedItem[]> {
 export interface SteamGameTags {
   genres: string[];
   modes: string[]; // categories da Steam (Multiplayer, Co-op, Online Co-op, etc.)
+  description: string | null; // short_description, já em português (l=portuguese)
 }
 
 /**
- * Busca genres/categories de um app na Steam Store (appdetails). Usado pra
- * classificar modo de jogo (online/co-op) e gênero. Nunca derruba a aplicação
- * se a Steam estiver fora do ar — retorna listas vazias nesse caso.
+ * Busca genres/categories/descrição curta de um app na Steam Store
+ * (appdetails). Usado pra classificar modo de jogo (online/co-op), gênero e
+ * mostrar uma descrição no /swipe. Nunca derruba a aplicação se a Steam
+ * estiver fora do ar — retorna vazio nesse caso.
  */
 export async function getSteamGameTags(appid: number): Promise<SteamGameTags> {
+  const empty = { genres: [], modes: [], description: null };
   try {
     const url = new URL("https://store.steampowered.com/api/appdetails");
     url.searchParams.set("appids", String(appid));
-    url.searchParams.set("l", "english");
-    url.searchParams.set("cc", "us");
+    url.searchParams.set("l", "portuguese");
+    url.searchParams.set("cc", "BR");
 
     const res = await fetch(url, { next: { revalidate: 0 } });
-    if (!res.ok) return { genres: [], modes: [] };
+    if (!res.ok) return empty;
 
     const data = await res.json();
     const entry = data?.[String(appid)];
-    if (!entry?.success) return { genres: [], modes: [] };
+    if (!entry?.success) return empty;
 
     const genres = (entry.data?.genres ?? []).map((g: { description: string }) => g.description);
     const modes = (entry.data?.categories ?? []).map((c: { description: string }) => c.description);
-    return { genres, modes };
+    const description = (entry.data?.short_description as string | undefined)?.trim() || null;
+    return { genres, modes, description };
   } catch (err) {
     console.error(`Erro ao consultar tags da Steam para appid ${appid}:`, err);
-    return { genres: [], modes: [] };
+    return empty;
   }
 }
 

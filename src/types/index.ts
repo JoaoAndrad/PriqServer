@@ -6,6 +6,7 @@ export interface GameDTO {
   slug: string;
   coverUrl: string | null;
   genres: string | null;
+  description: string | null;
   platforms: string | null;
   modes: string | null;
   released: string | null;
