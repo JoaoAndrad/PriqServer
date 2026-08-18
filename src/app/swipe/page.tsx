@@ -5,46 +5,71 @@ import SwipeCard from "@/components/swipe/SwipeCard";
 import MatchModal from "@/components/swipe/MatchModal";
 import type { GameDTO, UserSummaryDTO } from "@/types";
 
+const QUEUE_SIZE = 5;
+
+interface QueueItem {
+  game: GameDTO;
+  ownedByOthers: boolean;
+}
+
 export default function SwipePage() {
-  const [game, setGame] = useState<GameDTO | null | undefined>(undefined);
-  const [ownedByOthers, setOwnedByOthers] = useState(false);
-  const [count, setCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [queue, setQueue] = useState<QueueItem[]>([]);
   const [match, setMatch] = useState<{ game: GameDTO; users: UserSummaryDTO[] } | null>(null);
 
-  const loadNext = useCallback(async () => {
-    setGame(undefined);
-    const res = await fetch("/api/swipe/next");
-    const data = await res.json();
-    setGame(data.game ?? null);
-    setOwnedByOthers(!!data.ownedByOthers);
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      const res = await fetch(`/api/swipe/next?count=${QUEUE_SIZE}`);
+      const data = await res.json();
+      setQueue(data.games ?? []);
+      setLoading(false);
+    })();
   }, []);
 
-  useEffect(() => {
-    loadNext();
-  }, [loadNext]);
+  // Repõe o fim da fila até voltar a QUEUE_SIZE, excluindo o que já está nela
+  // (`currentQueue`) pra não puxar jogo repetido — dispara em background, sem
+  // travar a exibição do próximo card, que já está pronto na fila local.
+  const replenish = useCallback(async (currentQueue: QueueItem[]) => {
+    const missing = QUEUE_SIZE - currentQueue.length;
+    if (missing <= 0) return;
+
+    const exclude = currentQueue.map((q) => q.game.id).join(",");
+    const res = await fetch(
+      `/api/swipe/next?count=${missing}&exclude=${encodeURIComponent(exclude)}`,
+    );
+    const data = await res.json();
+    const fetched: QueueItem[] = data.games ?? [];
+    if (fetched.length === 0) return;
+
+    setQueue((q) => (q.length >= QUEUE_SIZE ? q : [...q, ...fetched].slice(0, QUEUE_SIZE)));
+  }, []);
 
   async function handleVote(liked: boolean) {
-    if (!game) return;
-    const votedGame = game;
+    if (queue.length === 0) return;
+    const voted = queue[0];
+    const rest = queue.slice(1);
+    setQueue(rest);
+
     const res = await fetch("/api/swipe/vote", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ gameId: game.id, liked }),
+      body: JSON.stringify({ gameId: voted.game.id, liked }),
     });
     const data = await res.json();
-    setCount((c) => c + 1);
 
     if (data.matchedUsers?.length > 0) {
-      setMatch({ game: votedGame, users: data.matchedUsers });
-    } else {
-      loadNext();
+      setMatch({ game: voted.game, users: data.matchedUsers });
     }
+
+    replenish(rest);
   }
 
   function closeMatch() {
     setMatch(null);
-    loadNext();
   }
+
+  const current = queue[0];
 
   return (
     <div>
@@ -54,9 +79,9 @@ export default function SwipePage() {
         botões.
       </p>
 
-      {game === undefined && <p className="muted">Carregando...</p>}
+      {loading && <p className="muted">Carregando...</p>}
 
-      {game === null && (
+      {!loading && !current && (
         <div className="card">
           <p className="muted">
             Você avaliou tudo por enquanto! Busque mais jogos em{" "}
@@ -65,11 +90,14 @@ export default function SwipePage() {
         </div>
       )}
 
-      {game && (
-        <SwipeCard key={game.id} game={game} ownedByOthers={ownedByOthers} onVote={handleVote} />
+      {current && (
+        <SwipeCard
+          key={current.game.id}
+          game={current.game}
+          ownedByOthers={current.ownedByOthers}
+          onVote={handleVote}
+        />
       )}
-
-      {count > 0 && <p className="muted" style={{ marginTop: 16 }}>{count} jogos avaliados nessa sessão.</p>}
 
       {match && <MatchModal game={match.game} users={match.users} onClose={closeMatch} />}
     </div>

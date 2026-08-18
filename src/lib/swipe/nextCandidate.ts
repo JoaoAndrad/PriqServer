@@ -35,13 +35,28 @@ async function expandDiscoverablePool() {
   );
 }
 
+function shuffle<T>(arr: T[]): T[] {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = crypto.randomInt(i + 1);
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
 /**
- * Escolhe um jogo aleatório do catálogo, marcado como `discoverable`, que o
- * usuário ainda não avaliou (nem like, nem deslike, nem blacklist). Se não
- * sobrar nenhum, tenta reabastecer o pool com jogos em destaque na Steam e
- * tenta de novo.
+ * Escolhe até `count` jogos aleatórios e distintos do catálogo, marcados
+ * como `discoverable`, que o usuário ainda não avaliou (nem like, nem
+ * deslike, nem blacklist) e que não estejam em `excludeIds` (usado pelo
+ * front pra não repetir jogo que já está na fila local de swipe). Se não
+ * sobrar o suficiente, tenta reabastecer o pool com jogos em destaque na
+ * Steam e tenta de novo.
  */
-export async function getNextSwipeCandidate(userId: string) {
+export async function getNextSwipeCandidates(
+  userId: string,
+  count: number,
+  excludeIds: string[] = [],
+) {
   const decided = await prisma.userGame.findMany({
     where: {
       userId,
@@ -49,23 +64,20 @@ export async function getNextSwipeCandidate(userId: string) {
     },
     select: { gameId: true },
   });
-  const decidedIds = decided.map((d) => d.gameId);
+  const exclude = [...decided.map((d) => d.gameId), ...excludeIds];
 
-  const eligible = await prisma.game.findMany({
-    where: { discoverable: true, id: { notIn: decidedIds } },
+  let eligible = await prisma.game.findMany({
+    where: { discoverable: true, id: { notIn: exclude } },
   });
 
-  if (eligible.length > 0) {
-    return eligible[crypto.randomInt(eligible.length)];
+  if (eligible.length < count) {
+    // Baralho local esgotado (ou perto disso) — tenta trazer jogos em
+    // destaque novos pra dentro do pool antes de desistir.
+    await expandDiscoverablePool();
+    eligible = await prisma.game.findMany({
+      where: { discoverable: true, id: { notIn: exclude } },
+    });
   }
 
-  // Baralho local esgotado — tenta trazer jogos em destaque novos pra dentro do pool.
-  await expandDiscoverablePool();
-
-  const expanded = await prisma.game.findMany({
-    where: { discoverable: true, id: { notIn: decidedIds } },
-  });
-
-  if (expanded.length === 0) return null;
-  return expanded[crypto.randomInt(expanded.length)];
+  return shuffle(eligible).slice(0, count);
 }
