@@ -5,10 +5,17 @@ import { useSearchParams } from "next/navigation";
 import PersonSelectModal from "@/components/match/PersonSelectModal";
 import DrawResult from "@/components/draw/DrawResult";
 import TransitionOverlay from "@/components/ui/TransitionOverlay";
+import { CloseIcon } from "@/components/ui/icons";
 import { sleep } from "@/lib/sleep";
 import type { GameDTO, UserSummaryDTO } from "@/types";
 
-interface FallbackEntry {
+interface NameLists {
+  interestedBy: string[];
+  favoritedBy: string[];
+  ownedBy: string[];
+}
+
+interface FallbackEntry extends NameLists {
   gameId: string;
   interestedCount: number;
   favoriteCount: number;
@@ -25,6 +32,7 @@ export default function DrawPage() {
   const [requireOwned, setRequireOwned] = useState(false);
   const [modeFilter, setModeFilter] = useState<"any" | "online" | "coop">("any");
   const [picked, setPicked] = useState<GameDTO | null>(null);
+  const [pickedNames, setPickedNames] = useState<NameLists | null>(null);
   const [fallbackUsed, setFallbackUsed] = useState(false);
   const [fallback, setFallback] = useState<FallbackEntry[]>([]);
   const [drawn, setDrawn] = useState(false);
@@ -46,7 +54,11 @@ export default function DrawPage() {
     setLoading(true);
     setShowTransition(true);
 
-    const [res] = await Promise.all([
+    // paraleliza o fetch+parse inteiro com o sleep (não só o fetch) — senão o
+    // res.json() rodava depois do Promise.all resolver, somando um atraso
+    // extra depois que a animação já tinha "acabado" visualmente (CSS de
+    // 1.5s), e o resultado só aparecia bem depois da tela parar de girar.
+    const [data] = await Promise.all([
       fetch("/api/draw", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -55,12 +67,12 @@ export default function DrawPage() {
           requireOwned,
           modeFilter,
         }),
-      }),
+      }).then((res) => res.json()),
       sleep(1500),
     ]);
-    const data = await res.json();
 
     setPicked(data.picked ?? null);
+    setPickedNames(data.pickedNames ?? null);
     setFallbackUsed(data.fallbackUsed ?? false);
     setFallback(data.fallback ?? []);
     setDrawn(true);
@@ -89,6 +101,14 @@ export default function DrawPage() {
                   style={{ width: 20, height: 20, borderRadius: "50%", objectFit: "cover" }}
                 />
                 {u.displayName}
+                <button
+                  type="button"
+                  className="person-chip-remove"
+                  aria-label={`Remover ${u.displayName}`}
+                  onClick={() => setSelectedUsers((prev) => prev.filter((p) => p.id !== u.id))}
+                >
+                  <CloseIcon width={12} height={12} />
+                </button>
               </div>
             ))}
           </div>
@@ -141,7 +161,12 @@ export default function DrawPage() {
 
       {drawn && (
         <div style={{ marginTop: 16 }}>
-          <DrawResult picked={picked} fallbackUsed={fallbackUsed} fallback={fallback} />
+          <DrawResult
+            picked={picked}
+            pickedNames={pickedNames}
+            fallbackUsed={fallbackUsed}
+            fallback={fallback}
+          />
         </div>
       )}
     </div>

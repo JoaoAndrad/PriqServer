@@ -2,7 +2,13 @@ import crypto from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { ensureGameModes, matchesModeFilter, type ModeFilter } from "@/lib/games/modes";
 
-export interface FallbackEntry {
+export interface GameUserLists {
+  interestedUserIds: string[];
+  favoriteUserIds: string[];
+  ownedUserIds: string[];
+}
+
+export interface FallbackEntry extends GameUserLists {
   gameId: string;
   interestedCount: number;
   favoriteCount: number;
@@ -10,6 +16,7 @@ export interface FallbackEntry {
 
 export interface DrawResult {
   pickedGameId: string | null;
+  pickedStats: GameUserLists | null;
   candidateGameIds: string[];
   fallback: FallbackEntry[];
   fallbackUsed: boolean;
@@ -96,7 +103,7 @@ export async function drawGame(
   candidateIds = await filterByMode(candidateIds, modeFilter);
 
   if (candidateIds.length === 0) {
-    return { pickedGameId: null, candidateGameIds: [], fallback: [], fallbackUsed: true };
+    return { pickedGameId: null, pickedStats: null, candidateGameIds: [], fallback: [], fallbackUsed: true };
   }
 
   const entries = candidateIds.map((gameId) => {
@@ -112,7 +119,16 @@ export async function drawGame(
     if (commonToAll) weight *= 4;
     weight = Math.max(weight, 1);
 
-    return { gameId, interestedCount, favoriteCount, commonToAll, weight };
+    return {
+      gameId,
+      interestedCount,
+      favoriteCount,
+      commonToAll,
+      weight,
+      interestedUserIds: Array.from(s.interested),
+      favoriteUserIds: Array.from(s.favorite),
+      ownedUserIds: Array.from(s.owned),
+    };
   });
 
   const picked = pickWeighted(entries);
@@ -121,12 +137,24 @@ export async function drawGame(
     .slice()
     .sort((a, b) => b.interestedCount + b.favoriteCount - (a.interestedCount + a.favoriteCount))
     .slice(0, 5)
-    .map(({ gameId, interestedCount, favoriteCount }) => ({ gameId, interestedCount, favoriteCount }));
+    .map(({ gameId, interestedCount, favoriteCount, interestedUserIds, favoriteUserIds, ownedUserIds }) => ({
+      gameId,
+      interestedCount,
+      favoriteCount,
+      interestedUserIds,
+      favoriteUserIds,
+      ownedUserIds,
+    }));
 
   const fullyCommonExists = entries.some((e) => e.commonToAll);
 
   return {
     pickedGameId: picked.gameId,
+    pickedStats: {
+      interestedUserIds: picked.interestedUserIds,
+      favoriteUserIds: picked.favoriteUserIds,
+      ownedUserIds: picked.ownedUserIds,
+    },
     candidateGameIds: entries.map((e) => e.gameId),
     fallback,
     fallbackUsed: !fullyCommonExists,

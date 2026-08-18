@@ -475,6 +475,25 @@ details.card[open] > summary::before {
   background: rgba(124, 92, 255, 0.15);
 }
 
+.person-chip-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.person-chip-remove:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
