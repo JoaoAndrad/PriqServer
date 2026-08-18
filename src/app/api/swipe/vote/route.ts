@@ -34,6 +34,22 @@ export async function POST(req: NextRequest) {
       select: { user: { select: { id: true, displayName: true, avatarPath: true } } },
     });
     matchedUsers = others.map((o) => o.user);
+
+    if (matchedUsers.length > 0) {
+      // upsert em vez de createMany({ skipDuplicates: true }) — SQLite não
+      // suporta skipDuplicates no Prisma.
+      await Promise.all(
+        matchedUsers.map((other) =>
+          prisma.match.upsert({
+            where: {
+              gameId_triggeredById_withId: { gameId, triggeredById: user.id, withId: other.id },
+            },
+            create: { gameId, triggeredById: user.id, withId: other.id },
+            update: {},
+          }),
+        ),
+      );
+    }
   }
 
   return NextResponse.json({ userGame, matchedUsers });

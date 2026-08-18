@@ -25,6 +25,9 @@ model User {
 
   recruitmentsCreated Recruitment[]       @relation("RecruitmentsCreated")
   recruitmentInvites  RecruitmentInvite[]
+
+  matchesTriggered Match[] @relation("MatchesTriggeredBy")
+  matchesReceived  Match[] @relation("MatchesWith")
 }
 
 model Game {
@@ -48,6 +51,7 @@ model Game {
 
   users               UserGame[]
   recruitments        Recruitment[]
+  matches             Match[]
 }
 
 model UserGame {
@@ -79,6 +83,29 @@ model Availability {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([weekday])
+}
+
+/**
+ * Um match acontece quando alguém curte (interested=true) um jogo no /swipe
+ * que outra pessoa do grupo já tinha curtido antes. `triggeredById` é quem
+ * disparou o match agora (o voto mais recente); `withId` é quem já tinha
+ * curtido. Uma linha por par (quem, com quem, qual jogo) — não deduplicamos
+ * globalmente entre triggeredBy/with porque cada lado só dispara o evento
+ * uma vez (o jogo sai do baralho de quem já decidiu).
+ */
+model Match {
+  id             String   @id @default(cuid())
+  gameId         String
+  triggeredById  String
+  withId         String
+  createdAt      DateTime @default(now())
+
+  game        Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  triggeredBy User @relation("MatchesTriggeredBy", fields: [triggeredById], references: [id], onDelete: Cascade)
+  with        User @relation("MatchesWith", fields: [withId], references: [id], onDelete: Cascade)
+
+  @@unique([gameId, triggeredById, withId])
+  @@index([gameId])
 }
 
 // ---------- Prikedin (recrutamento) ----------
