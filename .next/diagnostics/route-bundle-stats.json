@@ -66,10 +66,10 @@
   },
   {
     "route": "/swipe",
-    "firstLoadUncompressedJsBytes": 472472,
+    "firstLoadUncompressedJsBytes": 472638,
     "firstLoadChunkPaths": [
       ".next\\static\\chunks\\3heq3e6wy_z90.js",
-      ".next\\static\\chunks\\17dk5t11mja0u.js",
+      ".next\\static\\chunks\\0dsvxl6bk2dk1.js",
       ".next\\static\\chunks\\310vm2bl3xxpt.js",
       ".next\\static\\chunks\\40j26qmlkjc3v.js",
       ".next\\static\\chunks\\3e4keds9ktjdu.js",

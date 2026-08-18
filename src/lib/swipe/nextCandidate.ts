@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { prisma } from "@/lib/prisma";
-import { fetchSteamFeaturedGames, steamCoverUrl } from "@/lib/steam/client";
+import { fetchSteamFeaturedGames, resolveSteamCoverUrl } from "@/lib/steam/client";
 
 /**
  * Reabastece o pool do /swipe com jogos curados (mais vendidos, lançamentos,
@@ -14,19 +14,24 @@ async function expandDiscoverablePool() {
   if (featured.length === 0) return;
 
   await Promise.all(
-    featured.map((item) =>
-      prisma.game.upsert({
+    featured.map(async (item) => {
+      // resolve sempre (não reaproveita coverUrl salva) — o caminho legado
+      // (header.jpg) dá 404 bastante em jogos mais novos, e reaproveitar uma
+      // capa quebrada salva anteriormente nunca corrigiria o problema.
+      const coverUrl = await resolveSteamCoverUrl(item.id);
+
+      await prisma.game.upsert({
         where: { steamAppId: item.id },
         create: {
           steamAppId: item.id,
           name: item.name,
           slug: `steam-${item.id}`,
-          coverUrl: steamCoverUrl(item.id),
+          coverUrl,
           discoverable: true,
         },
-        update: { name: item.name, discoverable: true },
-      }),
-    ),
+        update: { name: item.name, coverUrl, discoverable: true },
+      });
+    }),
   );
 }
 

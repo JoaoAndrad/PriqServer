@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { syncGamePassCatalog } from "@/lib/gamepass/sync";
-import { fetchSteamFeaturedGames, steamCoverUrl } from "@/lib/steam/client";
+import { fetchSteamFeaturedGames, resolveSteamCoverUrl } from "@/lib/steam/client";
 
 /**
  * Registro de scripts de manutenção rodáveis via POST /api/admin/run-script.
@@ -13,21 +13,40 @@ export const ADMIN_SCRIPTS = {
   async "seed-swipe-pool"() {
     const featured = await fetchSteamFeaturedGames();
     const upserted = await Promise.all(
-      featured.map((item) =>
-        prisma.game.upsert({
+      featured.map(async (item) => {
+        // resolve sempre (não reaproveita coverUrl salva) — o caminho legado
+        // (header.jpg) dá 404 bastante em jogos mais novos, e reaproveitar
+        // uma capa quebrada salva anteriormente nunca corrigiria o problema.
+        const coverUrl = await resolveSteamCoverUrl(item.id);
+        return prisma.game.upsert({
           where: { steamAppId: item.id },
           create: {
             steamAppId: item.id,
             name: item.name,
             slug: `steam-${item.id}`,
-            coverUrl: steamCoverUrl(item.id),
+            coverUrl,
             discoverable: true,
           },
-          update: { name: item.name, discoverable: true },
-        }),
-      ),
+          update: { name: item.name, coverUrl, discoverable: true },
+        });
+      }),
     );
     return { upserted: upserted.length };
+  },
+
+  /**
+   * Backfill: marca `discoverable: true` pra qualquer jogo que já tenha
+   * algum UserGame associado (favoritado, possuído, interessado ou
+   * importado por alguém) — necessário porque a migration que introduziu o
+   * campo marcou tudo como false por padrão, inclusive bibliotecas
+   * existentes, tirando esses jogos do pool do /swipe.
+   */
+  async "backfill-discoverable-from-library"() {
+    const { count } = await prisma.game.updateMany({
+      where: { discoverable: false, users: { some: {} } },
+      data: { discoverable: true },
+    });
+    return { updated: count };
   },
 
   /** Re-sincroniza o catálogo do Game Pass (mesma lógica do /api/admin/gamepass-sync). */

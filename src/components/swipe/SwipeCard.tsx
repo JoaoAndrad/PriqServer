@@ -10,9 +10,11 @@ const EXIT_DISTANCE = 600;
 
 export default function SwipeCard({
   game,
+  ownedByOthers,
   onVote,
 }: {
   game: GameDTO;
+  ownedByOthers?: boolean;
   onVote: (liked: boolean) => void;
 }) {
   const [offsetX, setOffsetX] = useState(0);
@@ -72,6 +74,7 @@ export default function SwipeCard({
 
         {game.coverUrl && <img src={coverSrc(game.coverUrl)!} alt="" draggable={false} />}
         <div className="body">
+          {ownedByOthers && <span className="badge owned">Na biblioteca de alguém</span>}
           <h2 style={{ margin: 0 }}>{game.name}</h2>
         </div>
       </div>

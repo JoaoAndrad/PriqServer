@@ -7,6 +7,7 @@ import type { GameDTO, UserSummaryDTO } from "@/types";
 
 export default function SwipePage() {
   const [game, setGame] = useState<GameDTO | null | undefined>(undefined);
+  const [ownedByOthers, setOwnedByOthers] = useState(false);
   const [count, setCount] = useState(0);
   const [match, setMatch] = useState<{ game: GameDTO; users: UserSummaryDTO[] } | null>(null);
 
@@ -15,6 +16,7 @@ export default function SwipePage() {
     const res = await fetch("/api/swipe/next");
     const data = await res.json();
     setGame(data.game ?? null);
+    setOwnedByOthers(!!data.ownedByOthers);
   }, []);
 
   useEffect(() => {
@@ -63,7 +65,9 @@ export default function SwipePage() {
         </div>
       )}
 
-      {game && <SwipeCard key={game.id} game={game} onVote={handleVote} />}
+      {game && (
+        <SwipeCard key={game.id} game={game} ownedByOthers={ownedByOthers} onVote={handleVote} />
+      )}
 
       {count > 0 && <p className="muted" style={{ marginTop: 16 }}>{count} jogos avaliados nessa sessão.</p>}
 
