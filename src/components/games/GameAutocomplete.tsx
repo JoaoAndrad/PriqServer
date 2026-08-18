@@ -6,9 +6,13 @@ import type { GameDTO } from "@/types";
 
 export default function GameAutocomplete({
   onSelect,
+  onSearchStart,
   placeholder = "Digite o nome do jogo...",
 }: {
   onSelect: (game: GameDTO) => void;
+  /** Disparado quando uma busca nova começa (query saindo de vazia pra preenchida) —
+   * usado pelo pai pra limpar resultados de uma busca anterior. */
+  onSearchStart?: () => void;
   placeholder?: string;
 }) {
   const [query, setQuery] = useState("");
@@ -17,6 +21,7 @@ export default function GameAutocomplete({
   const [loading, setLoading] = useState(false);
   const [forcing, setForcing] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const wasEmpty = useRef(true);
 
   async function runSearch(trimmed: string, force: boolean) {
     const res = await fetch(
@@ -31,7 +36,13 @@ export default function GameAutocomplete({
     if (trimmed.length === 0) {
       setResults([]);
       setOpen(false);
+      wasEmpty.current = true;
       return;
+    }
+
+    if (wasEmpty.current) {
+      wasEmpty.current = false;
+      onSearchStart?.();
     }
 
     let ignore = false;

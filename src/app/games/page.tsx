@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import type { GameDTO, UserGameDTO } from "@/types";
 import type { GameFlags } from "@/components/games/GameCategoryToggle";
-import GameCard from "@/components/games/GameCard";
+import GameCard, { type GameSocialLists } from "@/components/games/GameCard";
 import GameAutocomplete from "@/components/games/GameAutocomplete";
 
 const EMPTY_FLAGS: GameFlags = {
@@ -13,9 +13,14 @@ const EMPTY_FLAGS: GameFlags = {
   blacklisted: false,
 };
 
+interface SearchResultEntry {
+  game: GameDTO;
+  social?: GameSocialLists;
+}
+
 export default function GamesPage() {
   const [myGames, setMyGames] = useState<UserGameDTO[]>([]);
-  const [searchResults, setSearchResults] = useState<GameDTO[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResultEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   const loadMyGames = useCallback(async () => {
@@ -94,19 +99,33 @@ export default function GamesPage() {
       </p>
 
       <GameAutocomplete
-        onSelect={(game) =>
-          setSearchResults((prev) => (prev.some((g) => g.id === game.id) ? prev : [game, ...prev]))
-        }
+        onSearchStart={() => setSearchResults([])}
+        onSelect={(game) => {
+          setSearchResults((prev) =>
+            prev.some((r) => r.game.id === game.id) ? prev : [{ game }, ...prev],
+          );
+          // busca gênero/descrição/quem já tem — sob demanda, só pro jogo
+          // selecionado (não em toda a lista do dropdown, pra não bater na
+          // Steam a cada tecla digitada).
+          fetch(`/api/games/${game.id}`)
+            .then((res) => res.json())
+            .then((data: { game: GameDTO; social: GameSocialLists }) => {
+              setSearchResults((prev) =>
+                prev.map((r) => (r.game.id === game.id ? { game: data.game, social: data.social } : r)),
+              );
+            });
+        }}
       />
 
       {searchResults.length > 0 && (
         <div className="card">
           <h2>Resultados da busca</h2>
           <div className="game-grid">
-            {searchResults.map((game) => (
+            {searchResults.map(({ game, social }) => (
               <GameCard
                 key={game.id}
                 game={game}
+                social={social}
                 flags={flagsFor(game.id)}
                 onToggle={(key, value) => toggleFlag(game, key, value)}
               />
