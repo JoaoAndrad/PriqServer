@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { syncGamePassCatalog } from "@/lib/gamepass/sync";
-import { fetchSteamFeaturedGames, resolveSteamCoverUrl } from "@/lib/steam/client";
+import { fetchSteamFeaturedGames, resolveSteamCoverUrl, getSteamGameTags } from "@/lib/steam/client";
 import { previewSteamLibrary, confirmSteamImport } from "@/lib/steam/import";
 
 /**
@@ -117,6 +117,29 @@ export const ADMIN_SCRIPTS = {
     );
 
     return { username, imported: preview.length, games: preview.map((g) => g.name) };
+  },
+
+  /**
+   * Diagnóstico: mostra o que está salvo pra um jogo (por nome, match parcial)
+   * e o que a Steam appdetails responde agora pro steamAppId dele — usado pra
+   * entender por que gênero/descrição não apareceram (ex.: jogo sem página de
+   * loja pública/delistado retorna tudo vazio, e isso fica cacheado como
+   * "sem dado" permanentemente).
+   */
+  async "inspect-game"(args?: Record<string, unknown>) {
+    const name = args?.name as string | undefined;
+    if (!name) throw new Error("informe { name } em args");
+
+    const games = await prisma.game.findMany({ where: { name: { contains: name } }, take: 10 });
+    const liveTags = await Promise.all(
+      games.map(async (g) => ({
+        gameId: g.id,
+        steamAppId: g.steamAppId,
+        liveSteamTags: g.steamAppId ? await getSteamGameTags(g.steamAppId) : null,
+      })),
+    );
+
+    return { games, liveTags };
   },
 } satisfies Record<string, (args?: Record<string, unknown>) => Promise<unknown>>;
 
