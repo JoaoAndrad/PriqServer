@@ -33,7 +33,8 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const result = await ADMIN_SCRIPTS[scriptName as AdminScriptName]();
+    const args = body?.args as Record<string, unknown> | undefined;
+    const result = await ADMIN_SCRIPTS[scriptName as AdminScriptName](args);
     return NextResponse.json({ ok: true, script: scriptName, result });
   } catch (err) {
     console.error(`[admin/run-script] "${scriptName}" falhou:`, err);

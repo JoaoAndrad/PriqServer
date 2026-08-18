@@ -34,6 +34,35 @@ export const ADMIN_SCRIPTS = {
   async "gamepass-sync"() {
     return syncGamePassCatalog();
   },
-} satisfies Record<string, () => Promise<unknown>>;
+
+  /**
+   * Apaga jogos que só existem por terem aparecido numa busca livre — nunca
+   * marcados `discoverable`, sem nenhuma flag de UserGame (ninguém interagiu)
+   * e sem nenhum Recruitment apontando pra eles. Dry-run por padrão: só conta
+   * e mostra uma amostra; passe { dryRun: false } no body pra apagar de verdade.
+   */
+  async "cleanup-search-cache"(args?: Record<string, unknown>) {
+    const where = {
+      discoverable: false,
+      users: { none: {} },
+      recruitments: { none: {} },
+    } as const;
+
+    const dryRun = args?.dryRun !== false;
+
+    if (dryRun) {
+      const count = await prisma.game.count({ where });
+      const sample = await prisma.game.findMany({
+        where,
+        select: { id: true, name: true },
+        take: 20,
+      });
+      return { dryRun: true, count, sample: sample.map((g) => g.name) };
+    }
+
+    const { count } = await prisma.game.deleteMany({ where });
+    return { dryRun: false, deleted: count };
+  },
+} satisfies Record<string, (args?: Record<string, unknown>) => Promise<unknown>>;
 
 export type AdminScriptName = keyof typeof ADMIN_SCRIPTS;
