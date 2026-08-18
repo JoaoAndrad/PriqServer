@@ -127,7 +127,7 @@ export interface SteamFeaturedItem {
 export async function fetchSteamFeaturedGames(): Promise<SteamFeaturedItem[]> {
   const url = new URL("https://store.steampowered.com/api/featuredcategories");
   url.searchParams.set("cc", "BR");
-  url.searchParams.set("l", "portuguese");
+  url.searchParams.set("l", "brazilian");
 
   try {
     const res = await fetch(url, { next: { revalidate: 0 } });
@@ -153,7 +153,7 @@ export async function fetchSteamFeaturedGames(): Promise<SteamFeaturedItem[]> {
 export interface SteamGameTags {
   genres: string[];
   modes: string[]; // categories da Steam (Multiplayer, Co-op, Online Co-op, etc.)
-  description: string | null; // short_description, já em português (l=portuguese)
+  description: string | null; // short_description, já em português (l=brazilian — "portuguese" é PT-PT na Steam, cai pro inglês quando só existe tradução PT-BR)
 }
 
 /**
@@ -167,7 +167,7 @@ export async function getSteamGameTags(appid: number): Promise<SteamGameTags> {
   try {
     const url = new URL("https://store.steampowered.com/api/appdetails");
     url.searchParams.set("appids", String(appid));
-    url.searchParams.set("l", "portuguese");
+    url.searchParams.set("l", "brazilian");
     url.searchParams.set("cc", "BR");
 
     const res = await fetch(url, { next: { revalidate: 0 } });
@@ -200,7 +200,7 @@ export interface SteamStoreSearchItem {
 export async function searchSteamStore(query: string): Promise<SteamStoreSearchItem[]> {
   const url = new URL("https://store.steampowered.com/api/storesearch/");
   url.searchParams.set("term", query);
-  url.searchParams.set("l", "portuguese");
+  url.searchParams.set("l", "brazilian");
   url.searchParams.set("cc", "BR");
 
   try {

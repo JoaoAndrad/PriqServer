@@ -173,6 +173,28 @@ export const ADMIN_SCRIPTS = {
 
     return { suspects: suspects.length, repaired };
   },
+
+  /**
+   * Reconsulta a Steam appdetails pra TODO jogo com steamAppId, mesmo os que
+   * já têm modes/genres/description preenchidos — usado depois de trocar o
+   * locale de "portuguese" (PT-PT na Steam) pra "brazilian" (PT-BR), que
+   * fazia a short_description cair pro fallback em inglês sempre que o jogo
+   * só tinha tradução PT-BR (a maioria). Processa em lotes pequenos com
+   * intervalo (mesmo throttle do ensureGameModes) — pode demorar bastante
+   * com um catálogo grande.
+   */
+  async "refresh-all-game-details"() {
+    const games = await prisma.game.findMany({ where: { steamAppId: { not: null } } });
+    if (games.length === 0) return { total: 0 };
+
+    await prisma.game.updateMany({
+      where: { id: { in: games.map((g) => g.id) } },
+      data: { modes: null },
+    });
+
+    const byId = await ensureGameModes(games.map((g) => ({ ...g, modes: null })));
+    return { total: games.length, refreshed: byId.size };
+  },
 } satisfies Record<string, (args?: Record<string, unknown>) => Promise<unknown>>;
 
 export type AdminScriptName = keyof typeof ADMIN_SCRIPTS;

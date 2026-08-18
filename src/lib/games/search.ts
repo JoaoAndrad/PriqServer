@@ -117,7 +117,7 @@ export async function ensureGameBySteamAppId(steamAppId: number) {
 
   const url = new URL("https://store.steampowered.com/api/appdetails");
   url.searchParams.set("appids", String(steamAppId));
-  url.searchParams.set("l", "portuguese");
+  url.searchParams.set("l", "brazilian");
 
   const res = await fetch(url);
   if (!res.ok) throw new Error("Falha ao consultar detalhes do jogo na Steam");
