@@ -72,6 +72,8 @@ export async function searchGames(query: string, options: { force?: boolean } = 
           slug: `steam-${item.id}`,
           coverUrl: steamCoverUrl(item.id),
           refreshedAt: new Date(),
+          // busca livre é só lookup — não deve entrar no pool do /swipe sozinha
+          discoverable: false,
         },
         update: { name: item.name, refreshedAt: new Date() },
       }),
@@ -133,8 +135,10 @@ export async function ensureGameBySteamAppId(steamAppId: number) {
       name,
       slug: `steam-${steamAppId}`,
       coverUrl: steamCoverUrl(steamAppId),
+      // chamado só quando o usuário adiciona/flaga esse jogo específico — entra no pool do /swipe
+      discoverable: true,
     },
-    update: { name },
+    update: { name, discoverable: true },
   });
 }
 
@@ -148,7 +152,8 @@ export async function ensureGameByTgdbId(tgdbId: number) {
 
   return prisma.game.upsert({
     where: { tgdbId },
-    create: mapTgdbToGameData(tgdb),
-    update: mapTgdbToGameData(tgdb),
+    // chamado só quando o usuário adiciona/flaga esse jogo específico — entra no pool do /swipe
+    create: { ...mapTgdbToGameData(tgdb), discoverable: true },
+    update: { ...mapTgdbToGameData(tgdb), discoverable: true },
   });
 }

@@ -23,6 +23,7 @@ interface RecruitmentDetail {
   status: string;
   scheduledAt: string;
   hasTime: boolean;
+  maxSlots: number | null;
   game: GameDTO;
   createdBy: UserSummaryDTO;
   invites: InviteDTO[];
@@ -35,6 +36,7 @@ const COLUMNS: {
   className: string;
 }[] = [
   { status: "accepted", label: "Confirmados", Icon: CheckIcon, className: "status-icon success" },
+  { status: "waitlisted", label: "Em espera", Icon: HourglassIcon, className: "status-icon warning" },
   { status: "pending", label: "Pendentes", Icon: HourglassIcon, className: "status-icon muted" },
   { status: "declined", label: "Recusaram", Icon: CloseIcon, className: "status-icon danger" },
 ];
@@ -71,6 +73,8 @@ export default function RecruitmentDetailPage() {
 
   const isCreator = recruitment.createdBy.id === myId;
   const myInvite = recruitment.invites.find((i) => i.userId === myId);
+  const isConfirmedParticipant = myInvite?.status === "accepted";
+  const canInvite = isCreator || isConfirmedParticipant;
 
   async function invite() {
     setBusy(true);
@@ -102,6 +106,13 @@ export default function RecruitmentDetailPage() {
     load();
   }
 
+  async function leave() {
+    setBusy(true);
+    await fetch(`/api/recruitments/${id}/leave`, { method: "POST" });
+    setBusy(false);
+    load();
+  }
+
   async function closeRecruitment() {
     setBusy(true);
     await fetch(`/api/recruitments/${id}/close`, { method: "POST" });
@@ -113,6 +124,11 @@ export default function RecruitmentDetailPage() {
   const dateLabel = recruitment.hasTime
     ? date.toLocaleString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
     : date.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" }) + " — horário a combinar";
+
+  const acceptedCount = recruitment.invites.filter((i) => i.status === "accepted").length;
+  const isFull = recruitment.maxSlots != null && acceptedCount >= recruitment.maxSlots;
+  const statusLabel =
+    recruitment.status === "open" ? "aberta" : recruitment.status === "expired" ? "expirada" : "fechada";
 
   return (
     <div>
@@ -128,7 +144,14 @@ export default function RecruitmentDetailPage() {
           <h1 style={{ margin: 0 }}>{recruitment.game.name}</h1>
           <p className="muted" style={{ margin: "4px 0 0" }}>
             {dateLabel} — criado por {recruitment.createdBy.displayName} —{" "}
-            <span className="badge">{recruitment.status === "open" ? "aberta" : "fechada"}</span>
+            <span className="badge">{statusLabel}</span>
+            {recruitment.maxSlots != null && (
+              <>
+                {" "}
+                — {acceptedCount}/{recruitment.maxSlots} vagas
+                {isFull && " (cheia)"}
+              </>
+            )}
           </p>
         </div>
       </div>
@@ -172,7 +195,7 @@ export default function RecruitmentDetailPage() {
         )}
       </div>
 
-      {isCreator && recruitment.status === "open" && (
+      {canInvite && recruitment.status === "open" && (
         <div className="card">
           <h2>Convidar candidatos</h2>
           <p className="muted">Priorizado por favorito &gt; interesse &gt; demais.</p>
@@ -212,8 +235,21 @@ export default function RecruitmentDetailPage() {
 
       {!isCreator && !myInvite && recruitment.status === "open" && (
         <div className="card">
+          {isFull && (
+            <p className="muted" style={{ marginTop: 0 }}>
+              Vaga cheia — você vai entrar na lista de espera.
+            </p>
+          )}
           <button onClick={join} disabled={busy}>
-            Quero entrar nessa
+            {isFull ? "Entrar na lista de espera" : "Quero entrar nessa"}
+          </button>
+        </div>
+      )}
+
+      {!isCreator && (myInvite?.status === "accepted" || myInvite?.status === "waitlisted") && (
+        <div className="card">
+          <button className="secondary" onClick={leave} disabled={busy}>
+            {myInvite.status === "waitlisted" ? "Sair da lista de espera" : "Sair da vaga"}
           </button>
         </div>
       )}

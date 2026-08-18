@@ -47,13 +47,15 @@ export async function previewSteamLibrary(steamProfileInput: string): Promise<St
 
 /** Confirma a importação: marca os gameIds selecionados como "possui" (source: steam-import). */
 export async function confirmSteamImport(userId: string, gameIds: string[]) {
-  await prisma.$transaction(
-    gameIds.map((gameId) =>
+  await prisma.$transaction([
+    ...gameIds.map((gameId) =>
       prisma.userGame.upsert({
         where: { userId_gameId: { userId, gameId } },
         create: { userId, gameId, owned: true, source: "steam-import" },
         update: { owned: true },
       }),
     ),
-  );
+    // confirmado pelo usuário (não só previsto no preview) — vira elegível pro /swipe
+    prisma.game.updateMany({ where: { id: { in: gameIds } }, data: { discoverable: true } }),
+  ]);
 }

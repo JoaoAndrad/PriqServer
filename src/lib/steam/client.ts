@@ -110,6 +110,43 @@ export async function getOwnedGames(steamId64: string): Promise<SteamOwnedGame[]
 
 export { steamCoverUrl };
 
+export interface SteamFeaturedItem {
+  id: number;
+  name: string;
+}
+
+/**
+ * Lista jogos em destaque na loja da Steam (mais vendidos, lançamentos, promoções)
+ * — endpoint público, sem chave. Usado pra reabastecer o pool do /swipe com jogos
+ * curados de verdade, em vez de bater com termos genéricos ("war", "quest", etc.)
+ * que trazem qualquer coisa que combine por acaso.
+ */
+export async function fetchSteamFeaturedGames(): Promise<SteamFeaturedItem[]> {
+  const url = new URL("https://store.steampowered.com/api/featuredcategories");
+  url.searchParams.set("cc", "BR");
+  url.searchParams.set("l", "portuguese");
+
+  try {
+    const res = await fetch(url, { next: { revalidate: 0 } });
+    if (!res.ok) return [];
+    const data = await res.json();
+
+    const buckets = ["top_sellers", "new_releases", "specials"] as const;
+    const byId = new Map<number, string>();
+    for (const bucket of buckets) {
+      const items = data?.[bucket]?.items as { id?: number; name?: string }[] | undefined;
+      for (const item of items ?? []) {
+        if (item.id && item.name) byId.set(item.id, item.name);
+      }
+    }
+
+    return Array.from(byId, ([id, name]) => ({ id, name }));
+  } catch (err) {
+    console.error("Erro ao consultar featuredcategories da Steam:", err);
+    return [];
+  }
+}
+
 export interface SteamGameTags {
   genres: string[];
   modes: string[]; // categories da Steam (Multiplayer, Co-op, Online Co-op, etc.)

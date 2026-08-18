@@ -55,6 +55,7 @@ export default function NewRecruitmentPage() {
   const [dayPreset, setDayPreset] = useState<DayPreset>("today");
   const [customDate, setCustomDate] = useState(toDateInputValue(new Date()));
   const [time, setTime] = useState("");
+  const [maxSlots, setMaxSlots] = useState("");
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -85,6 +86,8 @@ export default function NewRecruitmentPage() {
       date.setHours(0, 0, 0, 0);
     }
 
+    const parsedMaxSlots = maxSlots.trim() ? Number(maxSlots) : undefined;
+
     const res = await fetch("/api/recruitments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -92,6 +95,7 @@ export default function NewRecruitmentPage() {
         gameId: selectedGame.id,
         scheduledAt: date.toISOString(),
         hasTime,
+        maxSlots: parsedMaxSlots,
       }),
     });
     const data = await res.json();
@@ -180,6 +184,26 @@ export default function NewRecruitmentPage() {
               <label htmlFor="time">Horário (opcional)</label>
               <input id="time" type="time" value={time} onChange={(e) => setTime(e.target.value)} />
             </div>
+
+            <div className="form-field" style={{ maxWidth: 200 }}>
+              <label htmlFor="maxSlots">Vagas máximas (opcional)</label>
+              <input
+                id="maxSlots"
+                type="number"
+                min={1}
+                max={999}
+                placeholder="Sem limite"
+                value={maxSlots}
+                onChange={(e) => setMaxSlots(e.target.value)}
+              />
+              <p className="muted" style={{ fontSize: "0.85rem", margin: "4px 0 0" }}>
+                Quem entrar depois que lotar vai para a lista de espera.
+              </p>
+            </div>
+
+            <p className="muted" style={{ fontSize: "0.85rem" }}>
+              A vaga expira automaticamente 3 horas após o horário marcado.
+            </p>
 
             <button onClick={createRecruitment} disabled={creating}>
               {creating ? "Criando..." : "Criar vaga"}

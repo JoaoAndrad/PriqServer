@@ -17,10 +17,20 @@ export async function POST(
     return NextResponse.json({ error: "userIds é obrigatório" }, { status: 400 });
   }
 
-  const recruitment = await prisma.recruitment.findUnique({ where: { id } });
+  const recruitment = await prisma.recruitment.findUnique({
+    where: { id },
+    include: { invites: true },
+  });
   if (!recruitment) return NextResponse.json({ error: "Vaga não encontrada" }, { status: 404 });
-  if (recruitment.createdById !== user.id) {
-    return NextResponse.json({ error: "Só quem criou a vaga pode convidar" }, { status: 403 });
+
+  const myInvite = recruitment.invites.find((i) => i.userId === user.id);
+  const isCreator = recruitment.createdById === user.id;
+  const isConfirmedParticipant = myInvite?.status === "accepted";
+  if (!isCreator && !isConfirmedParticipant) {
+    return NextResponse.json(
+      { error: "Só quem criou a vaga ou já está confirmado pode convidar" },
+      { status: 403 },
+    );
   }
 
   await prisma.$transaction(

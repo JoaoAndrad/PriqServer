@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import { expireStaleRecruitments } from "@/lib/prikedin/expiry";
 
 export async function POST(
   _req: Request,
@@ -11,11 +12,20 @@ export async function POST(
 
   const { id } = await params;
 
-  const recruitment = await prisma.recruitment.findUnique({ where: { id } });
+  await expireStaleRecruitments({ id });
+
+  const recruitment = await prisma.recruitment.findUnique({
+    where: { id },
+    include: { invites: true },
+  });
   if (!recruitment) return NextResponse.json({ error: "Vaga não encontrada" }, { status: 404 });
   if (recruitment.status !== "open") {
     return NextResponse.json({ error: "Vaga não está mais aberta" }, { status: 409 });
   }
+
+  const acceptedCount = recruitment.invites.filter((i) => i.status === "accepted").length;
+  const full = recruitment.maxSlots != null && acceptedCount >= recruitment.maxSlots;
+  const status = full ? "waitlisted" : "accepted";
 
   const invite = await prisma.recruitmentInvite.upsert({
     where: { recruitmentId_userId: { recruitmentId: id, userId: user.id } },
@@ -23,10 +33,10 @@ export async function POST(
       recruitmentId: id,
       userId: user.id,
       source: "joined",
-      status: "accepted",
+      status,
       respondedAt: new Date(),
     },
-    update: { status: "accepted", respondedAt: new Date() },
+    update: { status, respondedAt: new Date() },
   });
 
   return NextResponse.json({ invite });

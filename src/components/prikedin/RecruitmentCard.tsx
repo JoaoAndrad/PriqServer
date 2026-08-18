@@ -15,6 +15,7 @@ export interface RecruitmentDTO {
   scheduledAt: string;
   hasTime: boolean;
   status: string;
+  maxSlots: number | null;
   createdById: string;
   game: GameDTO;
   createdBy: UserSummaryDTO;
@@ -59,12 +60,20 @@ export default function RecruitmentCard({ recruitment }: { recruitment: Recruitm
       <div className="recruitment-card-cover">
         {recruitment.game.coverUrl && <img src={coverSrc(recruitment.game.coverUrl)!} alt="" />}
         <span className={`badge urgency-${urgency.tone}`}>{urgency.label}</span>
-        {recruitment.status !== "open" && <span className="badge closed">fechada</span>}
+        {recruitment.status === "closed" && <span className="badge closed">fechada</span>}
+        {recruitment.status === "expired" && <span className="badge closed">expirada</span>}
       </div>
       <div className="recruitment-card-body">
         <h3>{recruitment.game.name}</h3>
         <p className="muted" style={{ margin: "2px 0 10px" }}>
           {dateLabel} — por {recruitment.createdBy.displayName}
+          {recruitment.maxSlots != null && (
+            <>
+              {" "}
+              — {accepted.length}/{recruitment.maxSlots} vagas
+              {accepted.length >= recruitment.maxSlots && " (cheia)"}
+            </>
+          )}
         </p>
         <div className="avatar-stack">
           {accepted.slice(0, 5).map((inv) => (

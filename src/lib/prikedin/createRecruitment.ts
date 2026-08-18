@@ -5,9 +5,10 @@ export async function createRecruitment(
   gameId: string,
   scheduledAt: Date,
   hasTime = true,
+  maxSlots?: number,
 ) {
   return prisma.recruitment.create({
-    data: { createdById, gameId, scheduledAt, hasTime },
+    data: { createdById, gameId, scheduledAt, hasTime, maxSlots: maxSlots ?? null },
     include: { game: true },
   });
 }

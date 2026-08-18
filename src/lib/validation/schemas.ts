@@ -65,6 +65,7 @@ export const createRecruitmentSchema = z.object({
   gameId: z.string().min(1),
   scheduledAt: z.string().datetime().or(z.string().min(1)),
   hasTime: z.boolean().optional(),
+  maxSlots: z.number().int().positive().max(999).optional(),
 });
 
 export const inviteSchema = z.object({

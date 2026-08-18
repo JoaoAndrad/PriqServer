@@ -403,6 +403,7 @@ details.card[open] > summary::before {
 .status-icon.success { color: var(--success); }
 .status-icon.danger { color: var(--danger); }
 .status-icon.muted { color: var(--text-muted); }
+.status-icon.warning { color: #ffd76a; }
 
 .game-grid {
   display: grid;

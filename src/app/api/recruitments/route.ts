@@ -3,11 +3,14 @@ import { getCurrentUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { createRecruitment } from "@/lib/prikedin/createRecruitment";
 import { createRecruitmentSchema } from "@/lib/validation/schemas";
+import { expireStaleRecruitments } from "@/lib/prikedin/expiry";
 import type { Prisma } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+
+  await expireStaleRecruitments();
 
   const scope = req.nextUrl.searchParams.get("scope") ?? "feed";
 
@@ -50,6 +53,7 @@ export async function POST(req: NextRequest) {
     parsed.data.gameId,
     new Date(parsed.data.scheduledAt),
     parsed.data.hasTime ?? true,
+    parsed.data.maxSlots,
   );
 
   return NextResponse.json({ recruitment }, { status: 201 });

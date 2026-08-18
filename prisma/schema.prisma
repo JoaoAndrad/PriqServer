@@ -43,6 +43,7 @@ model Game {
   tgdbUpdatedAt    DateTime?
   cachedAt         DateTime  @default(now())
   refreshedAt      DateTime  @default(now())
+  discoverable     Boolean   @default(false) // só jogos marcados aqui entram no pool do /swipe — busca livre não marca sozinha, só ação explícita (adicionar à lista, importar da Steam, seed curado)
 
   users               UserGame[]
   recruitments        Recruitment[]
@@ -87,7 +88,8 @@ model Recruitment {
   gameId      String
   scheduledAt DateTime // dia (e, opcionalmente, horário) proposto pelo recrutador (não recorrente)
   hasTime     Boolean  @default(true) // false = só o dia importa, sem horário específico definido
-  status      String   @default("open") // "open" | "closed"
+  maxSlots    Int? // limite de vagas confirmadas; null = sem limite
+  status      String   @default("open") // "open" | "closed" | "expired"
   createdAt   DateTime @default(now())
 
   createdBy User                @relation("RecruitmentsCreated", fields: [createdById], references: [id])
@@ -100,7 +102,7 @@ model RecruitmentInvite {
   recruitmentId String
   userId        String
   source        String // "invited" (o recrutador chamou) | "joined" (usuário entrou pelo feed aberto)
-  status        String    @default("pending") // "pending" | "accepted" | "declined" ("joined" já nasce "accepted")
+  status        String    @default("pending") // "pending" | "accepted" | "declined" | "waitlisted" ("joined" já nasce "accepted" ou "waitlisted" se lotado)
   createdAt     DateTime  @default(now())
   respondedAt   DateTime?
 

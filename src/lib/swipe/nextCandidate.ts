@@ -1,24 +1,40 @@
 import crypto from "node:crypto";
 import { prisma } from "@/lib/prisma";
-import { searchGames } from "@/lib/games/search";
+import { fetchSteamFeaturedGames, steamCoverUrl } from "@/lib/steam/client";
 
-// Termos-semente usados pra expandir o catálogo local quando acabam os
-// candidatos elegíveis — cobre uma mistura de letras comuns e gêneros/temas
-// populares, o suficiente pra puxar resultados variados da Steam/TheGamesDB.
-const SEED_TERMS = [
-  "a", "e", "i", "o", "u", "s", "r", "t",
-  "war", "star", "simulator", "quest", "world", "legend", "hero", "dark",
-  "adventure", "racing", "fighter", "puzzle", "survival", "tactics",
-];
+/**
+ * Reabastece o pool do /swipe com jogos curados (mais vendidos, lançamentos,
+ * promoções da Steam) marcados como `discoverable`. Só jogos com essa flag
+ * entram no swipe — busca livre (achar um jogo específico pra adicionar à
+ * lista) não deve poluir o pool de descoberta sozinha, só ação explícita do
+ * usuário (favoritar, marcar como possuído, importar da Steam) ou esse seed.
+ */
+async function expandDiscoverablePool() {
+  const featured = await fetchSteamFeaturedGames();
+  if (featured.length === 0) return;
 
-function randomSeedTerm(): string {
-  return SEED_TERMS[crypto.randomInt(SEED_TERMS.length)];
+  await Promise.all(
+    featured.map((item) =>
+      prisma.game.upsert({
+        where: { steamAppId: item.id },
+        create: {
+          steamAppId: item.id,
+          name: item.name,
+          slug: `steam-${item.id}`,
+          coverUrl: steamCoverUrl(item.id),
+          discoverable: true,
+        },
+        update: { name: item.name, discoverable: true },
+      }),
+    ),
+  );
 }
 
 /**
- * Escolhe um jogo aleatório do catálogo que o usuário ainda não avaliou
- * (nem like, nem deslike, nem blacklist). Se não sobrar nenhum localmente,
- * expande o catálogo com uma busca ao vivo (Steam + TheGamesDB) e tenta de novo.
+ * Escolhe um jogo aleatório do catálogo, marcado como `discoverable`, que o
+ * usuário ainda não avaliou (nem like, nem deslike, nem blacklist). Se não
+ * sobrar nenhum, tenta reabastecer o pool com jogos em destaque na Steam e
+ * tenta de novo.
  */
 export async function getNextSwipeCandidate(userId: string) {
   const decided = await prisma.userGame.findMany({
@@ -31,18 +47,18 @@ export async function getNextSwipeCandidate(userId: string) {
   const decidedIds = decided.map((d) => d.gameId);
 
   const eligible = await prisma.game.findMany({
-    where: { id: { notIn: decidedIds } },
+    where: { discoverable: true, id: { notIn: decidedIds } },
   });
 
   if (eligible.length > 0) {
     return eligible[crypto.randomInt(eligible.length)];
   }
 
-  // Baralho local esgotado — tenta trazer jogos novos pra dentro do cache.
-  await searchGames(randomSeedTerm());
+  // Baralho local esgotado — tenta trazer jogos em destaque novos pra dentro do pool.
+  await expandDiscoverablePool();
 
   const expanded = await prisma.game.findMany({
-    where: { id: { notIn: decidedIds } },
+    where: { discoverable: true, id: { notIn: decidedIds } },
   });
 
   if (expanded.length === 0) return null;

@@ -22,7 +22,9 @@ export async function POST(req: NextRequest) {
   let game;
   try {
     if (gameId) {
-      game = await prisma.game.findUniqueOrThrow({ where: { id: gameId } });
+      // ação explícita do usuário sobre um jogo já em cache (ex.: achou na busca
+      // livre e agora tá favoritando/marcando como possuído) — vira elegível pro /swipe
+      game = await prisma.game.update({ where: { id: gameId }, data: { discoverable: true } });
     } else if (steamAppId) {
       game = await ensureGameBySteamAppId(steamAppId);
     } else {
