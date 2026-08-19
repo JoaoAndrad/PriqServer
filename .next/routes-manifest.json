@@ -297,6 +297,12 @@
       "namedRegex": "^/prikedin/new(?:/)?$"
     },
     {
+      "page": "/priquitenses",
+      "regex": "^/priquitenses(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/priquitenses(?:/)?$"
+    },
+    {
       "page": "/profile",
       "regex": "^/profile(?:/)?$",
       "routeKeys": {},

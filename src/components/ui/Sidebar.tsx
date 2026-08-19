@@ -7,6 +7,7 @@ import {
   DiceIcon,
   HeartSwipeIcon,
   BriefcaseIcon,
+  UserIcon,
   CloseIcon,
 } from "./icons";
 
@@ -16,6 +17,7 @@ const LINKS = [
   { href: "/draw", label: "Sorteador", Icon: DiceIcon },
   { href: "/swipe", label: "Priquitinder", Icon: HeartSwipeIcon },
   { href: "/prikedin", label: "Prikedin", Icon: BriefcaseIcon },
+  { href: "/priquitenses", label: "Priquitenses", Icon: UserIcon },
 ];
 
 export default function Sidebar({

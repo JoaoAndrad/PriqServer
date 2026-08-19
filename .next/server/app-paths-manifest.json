@@ -39,6 +39,7 @@
   "/prikedin/[recruitmentId]/page": "app/prikedin/[recruitmentId]/page.js",
   "/prikedin/new/page": "app/prikedin/new/page.js",
   "/prikedin/page": "app/prikedin/page.js",
+  "/priquitenses/page": "app/priquitenses/page.js",
   "/profile/page": "app/profile/page.js",
   "/register/page": "app/register/page.js",
   "/swipe/page": "app/swipe/page.js",

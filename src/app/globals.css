@@ -23,8 +23,11 @@ body {
   background: var(--bg);
   color: var(--text);
   /* evita que o card do /swipe (translateX pra fora da tela ao arrastar/votar)
-     estique a página com scroll horizontal */
-  overflow-x: hidden;
+     estique a página com scroll horizontal.
+     usa `clip` em vez de `hidden`: `hidden` num único eixo faz o browser
+     tratar o body como scroll container (spec força o outro eixo pra `auto`),
+     o que quebra o `position: sticky` do sidebar. */
+  overflow-x: clip;
 }
 
 a {

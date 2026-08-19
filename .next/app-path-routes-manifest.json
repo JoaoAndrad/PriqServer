@@ -39,6 +39,7 @@
   "/prikedin/[recruitmentId]/page": "/prikedin/[recruitmentId]",
   "/prikedin/new/page": "/prikedin/new",
   "/prikedin/page": "/prikedin",
+  "/priquitenses/page": "/priquitenses",
   "/profile/page": "/profile",
   "/register/page": "/register",
   "/swipe/page": "/swipe",
