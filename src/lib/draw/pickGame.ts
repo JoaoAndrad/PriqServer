@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { prisma } from "@/lib/prisma";
-import { ensureGameModes, matchesModeFilter, type ModeFilter } from "@/lib/games/modes";
+import { matchesModeFilter, type ModeFilter } from "@/lib/games/modes";
 
 export interface GameUserLists {
   interestedUserIds: string[];
@@ -47,14 +47,20 @@ function pickWeighted<T extends { weight: number }>(items: T[]): T {
   return items[items.length - 1];
 }
 
-/** Filtra jogos pelo modo pedido, garantindo antes que `modes` esteja no cache. */
+/**
+ * Filtra jogos pelo modo pedido usando só o que já está em cache (`modes`).
+ * Não chama `ensureGameModes` aqui: com muitos candidatos (ex.: sorteio com
+ * todos os usuários), buscar modo na Steam um por um — 1s de intervalo entre
+ * chamadas — estourava o timeout do Cloudflare (524) antes de sequer sortear.
+ * Jogos sem `modes` cacheado ficam de fora do filtro; o refresh em background
+ * (refresh-all-game-details) preenche o cache com o tempo.
+ */
 async function filterByMode(gameIds: string[], modeFilter: ModeFilter): Promise<string[]> {
   if (modeFilter === "any" || gameIds.length === 0) return gameIds;
 
   const games = await prisma.game.findMany({ where: { id: { in: gameIds } } });
-  const byId = await ensureGameModes(games);
   return gameIds.filter((id) => {
-    const game = byId.get(id);
+    const game = games.find((g) => g.id === id);
     return game ? matchesModeFilter(game, modeFilter) : false;
   });
 }
