@@ -8,6 +8,15 @@ export interface SteamPreviewItem {
   playtimeHours: number;
 }
 
+// Intervalo entre jogos ao importar uma lib inteira — resolveSteamCoverUrl
+// pode bater na appdetails (fallback do header.jpg legado), e uma lib grande
+// batendo tudo de uma vez bate no rate limit da Steam.
+const IMPORT_REQUEST_DELAY_MS = 3000;
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 /** Busca a biblioteca da Steam e garante cada jogo no cache local (Game), sem tocar em UserGame ainda. */
 export async function previewSteamLibrary(steamProfileInput: string): Promise<SteamPreviewItem[]> {
   const steamId64 = await resolveSteamId64(steamProfileInput);
@@ -15,7 +24,9 @@ export async function previewSteamLibrary(steamProfileInput: string): Promise<St
 
   const results: SteamPreviewItem[] = [];
 
-  for (const owned of ownedGames) {
+  for (let i = 0; i < ownedGames.length; i++) {
+    const owned = ownedGames[i];
+
     // o appid da Steam já identifica o jogo exatamente — sem precisar casar por nome.
     const existing = await prisma.game.findUnique({ where: { steamAppId: owned.appid } });
 
@@ -40,6 +51,10 @@ export async function previewSteamLibrary(steamProfileInput: string): Promise<St
       coverUrl: game.coverUrl,
       playtimeHours: Math.round((owned.playtime_forever / 60) * 10) / 10,
     });
+
+    if (i + 1 < ownedGames.length) {
+      await sleep(IMPORT_REQUEST_DELAY_MS);
+    }
   }
 
   return results.sort((a, b) => b.playtimeHours - a.playtimeHours);
