@@ -12,7 +12,8 @@ export default auth((req) => {
     pathname === "/api/register" ||
     // se autenticam sozinhas via header x-admin-key, não via sessão
     pathname === "/api/admin/run-script" ||
-    pathname === "/api/admin/sql";
+    pathname === "/api/admin/sql" ||
+    pathname === "/api/admin/avatar";
 
   if (!req.auth && !isPublic) {
     const loginUrl = new URL("/login", req.nextUrl.origin);

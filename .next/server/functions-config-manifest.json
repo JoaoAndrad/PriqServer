@@ -10,6 +10,7 @@
         }
       ]
     },
+    "/api/admin/avatar": {},
     "/api/profile/avatar": {}
   }
 }

@@ -1,6 +1,7 @@
 {
   "/_global-error/page": "app/_global-error/page.js",
   "/_not-found/page": "app/_not-found/page.js",
+  "/api/admin/avatar/route": "app/api/admin/avatar/route.js",
   "/api/admin/gamepass-sync/route": "app/api/admin/gamepass-sync/route.js",
   "/api/admin/run-script/route": "app/api/admin/run-script/route.js",
   "/api/admin/sql/route": "app/api/admin/sql/route.js",

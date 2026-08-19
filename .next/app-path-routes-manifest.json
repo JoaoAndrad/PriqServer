@@ -1,6 +1,7 @@
 {
   "/_global-error/page": "/_global-error",
   "/_not-found/page": "/_not-found",
+  "/api/admin/avatar/route": "/api/admin/avatar",
   "/api/admin/gamepass-sync/route": "/api/admin/gamepass-sync",
   "/api/admin/run-script/route": "/api/admin/run-script",
   "/api/admin/sql/route": "/api/admin/sql",

@@ -139,6 +139,12 @@
       "namedRegex": "^/_not\\-found(?:/)?$"
     },
     {
+      "page": "/api/admin/avatar",
+      "regex": "^/api/admin/avatar(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/avatar(?:/)?$"
+    },
+    {
       "page": "/api/admin/gamepass-sync",
       "regex": "^/api/admin/gamepass\\-sync(?:/)?$",
       "routeKeys": {},
