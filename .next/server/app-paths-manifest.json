@@ -3,6 +3,7 @@
   "/_not-found/page": "app/_not-found/page.js",
   "/api/admin/gamepass-sync/route": "app/api/admin/gamepass-sync/route.js",
   "/api/admin/run-script/route": "app/api/admin/run-script/route.js",
+  "/api/admin/sql/route": "app/api/admin/sql/route.js",
   "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
   "/api/availability/route": "app/api/availability/route.js",
   "/api/cover/route": "app/api/cover/route.js",

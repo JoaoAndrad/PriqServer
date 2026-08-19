@@ -151,6 +151,12 @@
       "namedRegex": "^/api/admin/run\\-script(?:/)?$"
     },
     {
+      "page": "/api/admin/sql",
+      "regex": "^/api/admin/sql(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/sql(?:/)?$"
+    },
+    {
       "page": "/api/availability",
       "regex": "^/api/availability(?:/)?$",
       "routeKeys": {},
