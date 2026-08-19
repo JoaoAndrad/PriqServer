@@ -129,7 +129,7 @@ model RecruitmentInvite {
   id            String    @id @default(cuid())
   recruitmentId String
   userId        String
-  source        String // "invited" (o recrutador chamou) | "joined" (usuário entrou pelo feed aberto)
+  source        String // "invited" (o recrutador chamou) | "joined" (usuário entrou pelo feed aberto) | "creator" (o próprio recrutador, já confirmado)
   status        String    @default("pending") // "pending" | "accepted" | "declined" | "waitlisted" ("joined" já nasce "accepted" ou "waitlisted" se lotado)
   createdAt     DateTime  @default(now())
   respondedAt   DateTime?

@@ -39,11 +39,11 @@
     ]
   },
   {
-    "route": "/prikedin/new",
-    "firstLoadUncompressedJsBytes": 473608,
+    "route": "/prikedin/[recruitmentId]",
+    "firstLoadUncompressedJsBytes": 473872,
     "firstLoadChunkPaths": [
       ".next\\static\\chunks\\3heq3e6wy_z90.js",
-      ".next\\static\\chunks\\2k8jum92htty6.js",
+      ".next\\static\\chunks\\2v28s039d_6vn.js",
       ".next\\static\\chunks\\310vm2bl3xxpt.js",
       ".next\\static\\chunks\\40j26qmlkjc3v.js",
       ".next\\static\\chunks\\3e4keds9ktjdu.js",
@@ -52,11 +52,11 @@
     ]
   },
   {
-    "route": "/prikedin/[recruitmentId]",
-    "firstLoadUncompressedJsBytes": 473421,
+    "route": "/prikedin/new",
+    "firstLoadUncompressedJsBytes": 473608,
     "firstLoadChunkPaths": [
       ".next\\static\\chunks\\3heq3e6wy_z90.js",
-      ".next\\static\\chunks\\2zwq5rt2w8uso.js",
+      ".next\\static\\chunks\\2k8jum92htty6.js",
       ".next\\static\\chunks\\310vm2bl3xxpt.js",
       ".next\\static\\chunks\\40j26qmlkjc3v.js",
       ".next\\static\\chunks\\3e4keds9ktjdu.js",

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
-import { prisma } from "@/lib/prisma";
+import { removeInvite } from "@/lib/prikedin/removeInvite";
 
 export async function POST(
   _req: Request,
@@ -11,29 +11,9 @@ export async function POST(
 
   const { id } = await params;
 
-  const invite = await prisma.recruitmentInvite.findUnique({
-    where: { recruitmentId_userId: { recruitmentId: id, userId: user.id } },
-  });
+  const invite = await removeInvite(id, user.id);
   if (!invite) {
     return NextResponse.json({ error: "Você não está nessa vaga" }, { status: 404 });
-  }
-
-  const wasAccepted = invite.status === "accepted";
-
-  await prisma.recruitmentInvite.delete({ where: { id: invite.id } });
-
-  if (wasAccepted) {
-    // libera uma vaga: promove o primeiro da lista de espera, se houver
-    const nextInLine = await prisma.recruitmentInvite.findFirst({
-      where: { recruitmentId: id, status: "waitlisted" },
-      orderBy: { createdAt: "asc" },
-    });
-    if (nextInLine) {
-      await prisma.recruitmentInvite.update({
-        where: { id: nextInLine.id },
-        data: { status: "accepted", respondedAt: new Date() },
-      });
-    }
   }
 
   return NextResponse.json({ ok: true });

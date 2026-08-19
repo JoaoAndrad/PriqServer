@@ -19,6 +19,7 @@
   "/api/recruitments/[id]/invite/route": "/api/recruitments/[id]/invite",
   "/api/recruitments/[id]/join/route": "/api/recruitments/[id]/join",
   "/api/recruitments/[id]/leave/route": "/api/recruitments/[id]/leave",
+  "/api/recruitments/[id]/remove/route": "/api/recruitments/[id]/remove",
   "/api/recruitments/[id]/respond/route": "/api/recruitments/[id]/respond",
   "/api/recruitments/[id]/route": "/api/recruitments/[id]",
   "/api/recruitments/route": "/api/recruitments",

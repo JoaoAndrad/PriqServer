@@ -113,6 +113,17 @@ export default function RecruitmentDetailPage() {
     load();
   }
 
+  async function removeParticipant(userId: string) {
+    setBusy(true);
+    await fetch(`/api/recruitments/${id}/remove`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    });
+    setBusy(false);
+    load();
+  }
+
   async function closeRecruitment() {
     setBusy(true);
     await fetch(`/api/recruitments/${id}/close`, { method: "POST" });
@@ -177,14 +188,23 @@ export default function RecruitmentDetailPage() {
                       </p>
                     ) : (
                       people.map((inv) => (
-                        <Link
-                          key={inv.id}
-                          href={`/u/${inv.user.id}`}
-                          className="invite-person"
-                        >
-                          <img src={avatarSrc(inv.user)} alt="" />
-                          <span>{inv.user.displayName}</span>
-                        </Link>
+                        <div key={inv.id} className="invite-person-row">
+                          <Link href={`/u/${inv.user.id}`} className="invite-person">
+                            <img src={avatarSrc(inv.user)} alt="" />
+                            <span>{inv.user.displayName}</span>
+                          </Link>
+                          {isCreator && inv.userId !== myId && (
+                            <button
+                              type="button"
+                              className="person-chip-remove"
+                              aria-label={`Remover ${inv.user.displayName}`}
+                              disabled={busy}
+                              onClick={() => removeParticipant(inv.userId)}
+                            >
+                              <CloseIcon width={12} height={12} />
+                            </button>
+                          )}
+                        </div>
                       ))
                     )}
                   </div>

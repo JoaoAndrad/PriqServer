@@ -18,7 +18,10 @@ export async function GET(req: NextRequest) {
   if (scope === "mine") {
     where = { createdById: user.id };
   } else if (scope === "invited") {
-    where = { invites: { some: { userId: user.id } } };
+    // exclui as próprias vagas criadas — o criador agora tem um invite
+    // "creator" automático, mas essa aba é pra convites/candidaturas de
+    // outras vagas, não pra listar de novo o que a pessoa mesma criou.
+    where = { invites: { some: { userId: user.id } }, createdById: { not: user.id } };
   } else {
     where = { status: "open" };
   }
