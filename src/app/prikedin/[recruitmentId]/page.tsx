@@ -21,6 +21,8 @@ interface InviteDTO {
 interface RecruitmentDetail {
   id: string;
   status: string;
+  title: string | null;
+  description: string | null;
   scheduledAt: string;
   hasTime: boolean;
   maxSlots: number | null;
@@ -45,6 +47,17 @@ function avatarSrc(u: UserSummaryDTO) {
   return u.avatarPath ? `/api/uploads/${u.avatarPath}` : "/avatar-placeholder.svg";
 }
 
+function toDateInputValue(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function toTimeInputValue(d: Date): string {
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
 export default function RecruitmentDetailPage() {
   const params = useParams<{ recruitmentId: string }>();
   const id = params.recruitmentId;
@@ -54,6 +67,13 @@ export default function RecruitmentDetailPage() {
   const [selectedToInvite, setSelectedToInvite] = useState<Set<string>>(new Set());
   const [myId, setMyId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editDate, setEditDate] = useState("");
+  const [editTime, setEditTime] = useState("");
+  const [editMaxSlots, setEditMaxSlots] = useState("");
+  const [editError, setEditError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/recruitments/${id}`);
@@ -131,6 +151,53 @@ export default function RecruitmentDetailPage() {
     load();
   }
 
+  function openEdit() {
+    const current = new Date(recruitment!.scheduledAt);
+    setEditTitle(recruitment!.title ?? "");
+    setEditDescription(recruitment!.description ?? "");
+    setEditDate(toDateInputValue(current));
+    setEditTime(recruitment!.hasTime ? toTimeInputValue(current) : "");
+    setEditMaxSlots(recruitment!.maxSlots != null ? String(recruitment!.maxSlots) : "");
+    setEditError(null);
+    setEditing(true);
+  }
+
+  async function saveEdit() {
+    if (!editDate) return;
+    setBusy(true);
+    setEditError(null);
+
+    const [y, m, day] = editDate.split("-").map(Number);
+    const date = new Date(y, m - 1, day);
+    const hasTime = editTime.trim().length > 0;
+    if (hasTime) {
+      const [h, min] = editTime.split(":").map(Number);
+      date.setHours(h, min, 0, 0);
+    } else {
+      date.setHours(0, 0, 0, 0);
+    }
+
+    const res = await fetch(`/api/recruitments/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: editTitle.trim() || null,
+        description: editDescription.trim() || null,
+        scheduledAt: date.toISOString(),
+        hasTime,
+        maxSlots: editMaxSlots.trim() ? Number(editMaxSlots) : null,
+      }),
+    });
+    const data = await res.json();
+    setBusy(false);
+    if (!res.ok) {
+      setEditError(data.error ?? "Não foi possível salvar");
+      return;
+    }
+    setEditing(false);
+    load();
+  }
+
   const date = new Date(recruitment.scheduledAt);
   const dateLabel = recruitment.hasTime
     ? date.toLocaleString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
@@ -152,8 +219,18 @@ export default function RecruitmentDetailPage() {
           />
         )}
         <div>
-          <h1 style={{ margin: 0 }}>{recruitment.game.name}</h1>
-          <p className="muted" style={{ margin: "4px 0 0" }}>
+          {recruitment.title ? (
+            <>
+              <h1 style={{ margin: 0 }}>{recruitment.title}</h1>
+              <p className="muted" style={{ margin: "2px 0 0" }}>{recruitment.game.name}</p>
+            </>
+          ) : (
+            <h1 style={{ margin: 0 }}>{recruitment.game.name}</h1>
+          )}
+          {recruitment.description && (
+            <p style={{ margin: "6px 0 0", whiteSpace: "pre-wrap" }}>{recruitment.description}</p>
+          )}
+          <p className="muted" style={{ margin: "6px 0 0" }}>
             {dateLabel} — criado por {recruitment.createdBy.displayName} —{" "}
             <span className="badge">{statusLabel}</span>
             {recruitment.maxSlots != null && (
@@ -164,8 +241,70 @@ export default function RecruitmentDetailPage() {
               </>
             )}
           </p>
+          {isCreator && recruitment.status !== "closed" && !editing && (
+            <button type="button" className="secondary" style={{ marginTop: 8 }} onClick={openEdit}>
+              Editar vaga
+            </button>
+          )}
         </div>
       </div>
+
+      {editing && (
+        <div className="card">
+          <h2>Editar vaga</h2>
+          <div className="form-field">
+            <label htmlFor="editTitle">Título (opcional)</label>
+            <input
+              id="editTitle"
+              type="text"
+              maxLength={80}
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+            />
+          </div>
+          <div className="form-field">
+            <label htmlFor="editDescription">Descrição (opcional)</label>
+            <textarea
+              id="editDescription"
+              maxLength={500}
+              rows={3}
+              value={editDescription}
+              onChange={(e) => setEditDescription(e.target.value)}
+            />
+          </div>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <div className="form-field" style={{ maxWidth: 200 }}>
+              <label htmlFor="editDate">Dia</label>
+              <input id="editDate" type="date" value={editDate} onChange={(e) => setEditDate(e.target.value)} />
+            </div>
+            <div className="form-field" style={{ maxWidth: 200 }}>
+              <label htmlFor="editTime">Horário (opcional)</label>
+              <input id="editTime" type="time" value={editTime} onChange={(e) => setEditTime(e.target.value)} />
+            </div>
+            <div className="form-field" style={{ maxWidth: 200 }}>
+              <label htmlFor="editMaxSlots">Vagas máximas (opcional)</label>
+              <input
+                id="editMaxSlots"
+                type="number"
+                min={1}
+                max={999}
+                placeholder="Sem limite"
+                value={editMaxSlots}
+                onChange={(e) => setEditMaxSlots(e.target.value)}
+              />
+            </div>
+          </div>
+          {editError && <p className="error">{editError}</p>}
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={saveEdit} disabled={busy || !editDate}>
+              Salvar
+            </button>
+            <button type="button" className="secondary" onClick={() => setEditing(false)} disabled={busy}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="card">
         <h2>Participantes</h2>

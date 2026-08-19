@@ -114,6 +114,8 @@ model Recruitment {
   id          String   @id @default(cuid())
   createdById String
   gameId      String
+  title       String? // opcional — headline curta da vaga, exibida acima do nome do jogo
+  description String? // opcional — texto livre com mais contexto (nível, requisitos, etc.)
   scheduledAt DateTime // dia (e, opcionalmente, horário) proposto pelo recrutador (não recorrente)
   hasTime     Boolean  @default(true) // false = só o dia importa, sem horário específico definido
   maxSlots    Int? // limite de vagas confirmadas; null = sem limite

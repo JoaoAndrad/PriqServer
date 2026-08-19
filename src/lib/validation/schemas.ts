@@ -63,10 +63,22 @@ export const drawSchema = z.object({
 
 export const createRecruitmentSchema = z.object({
   gameId: z.string().min(1),
+  title: z.string().trim().max(80).optional().or(z.literal("")),
+  description: z.string().trim().max(500).optional().or(z.literal("")),
   scheduledAt: z.string().datetime().or(z.string().min(1)),
   hasTime: z.boolean().optional(),
   maxSlots: z.number().int().positive().max(999).optional(),
 });
+
+export const updateRecruitmentSchema = z
+  .object({
+    title: z.string().trim().max(80).nullable().optional(),
+    description: z.string().trim().max(500).nullable().optional(),
+    scheduledAt: z.string().datetime().or(z.string().min(1)).optional(),
+    hasTime: z.boolean().optional(),
+    maxSlots: z.number().int().positive().max(999).nullable().optional(),
+  })
+  .refine((data) => Object.keys(data).length > 0, { message: "Nada pra atualizar" });
 
 export const inviteSchema = z.object({
   userIds: z.array(z.string().min(1)).min(1),

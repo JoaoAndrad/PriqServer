@@ -12,6 +12,8 @@ export interface InviteDTO {
 
 export interface RecruitmentDTO {
   id: string;
+  title: string | null;
+  description: string | null;
   scheduledAt: string;
   hasTime: boolean;
   status: string;
@@ -64,7 +66,8 @@ export default function RecruitmentCard({ recruitment }: { recruitment: Recruitm
         {recruitment.status === "expired" && <span className="badge closed">expirada</span>}
       </div>
       <div className="recruitment-card-body">
-        <h3>{recruitment.game.name}</h3>
+        <h3>{recruitment.title || recruitment.game.name}</h3>
+        {recruitment.title && <p className="muted" style={{ margin: "0 0 2px" }}>{recruitment.game.name}</p>}
         <p className="muted" style={{ margin: "2px 0 10px" }}>
           {dateLabel} — por {recruitment.createdBy.displayName}
           {recruitment.maxSlots != null && (

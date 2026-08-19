@@ -57,6 +57,8 @@ export async function POST(req: NextRequest) {
     new Date(parsed.data.scheduledAt),
     parsed.data.hasTime ?? true,
     parsed.data.maxSlots,
+    parsed.data.title,
+    parsed.data.description,
   );
 
   return NextResponse.json({ recruitment }, { status: 201 });

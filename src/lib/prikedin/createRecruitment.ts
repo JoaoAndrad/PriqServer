@@ -6,6 +6,8 @@ export async function createRecruitment(
   scheduledAt: Date,
   hasTime = true,
   maxSlots?: number,
+  title?: string,
+  description?: string,
 ) {
   // Quem cria a vaga já entra como confirmado — não faz sentido o próprio
   // recrutador aparecer como "não convidado" na lista de participantes.
@@ -13,6 +15,8 @@ export async function createRecruitment(
     data: {
       createdById,
       gameId,
+      title: title || null,
+      description: description || null,
       scheduledAt,
       hasTime,
       maxSlots: maxSlots ?? null,

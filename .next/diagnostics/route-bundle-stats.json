@@ -13,6 +13,32 @@
     ]
   },
   {
+    "route": "/prikedin/[recruitmentId]",
+    "firstLoadUncompressedJsBytes": 477005,
+    "firstLoadChunkPaths": [
+      ".next\\static\\chunks\\3heq3e6wy_z90.js",
+      ".next\\static\\chunks\\19mj4ht7gfkfy.js",
+      ".next\\static\\chunks\\310vm2bl3xxpt.js",
+      ".next\\static\\chunks\\40j26qmlkjc3v.js",
+      ".next\\static\\chunks\\3e4keds9ktjdu.js",
+      ".next\\static\\chunks\\2hbx0u5pc3csk.js",
+      ".next\\static\\chunks\\turbopack-27ceoyevqspxg.js"
+    ]
+  },
+  {
+    "route": "/prikedin/new",
+    "firstLoadUncompressedJsBytes": 474254,
+    "firstLoadChunkPaths": [
+      ".next\\static\\chunks\\3heq3e6wy_z90.js",
+      ".next\\static\\chunks\\3aztarvnr6zml.js",
+      ".next\\static\\chunks\\310vm2bl3xxpt.js",
+      ".next\\static\\chunks\\40j26qmlkjc3v.js",
+      ".next\\static\\chunks\\3e4keds9ktjdu.js",
+      ".next\\static\\chunks\\2hbx0u5pc3csk.js",
+      ".next\\static\\chunks\\turbopack-27ceoyevqspxg.js"
+    ]
+  },
+  {
     "route": "/games",
     "firstLoadUncompressedJsBytes": 474008,
     "firstLoadChunkPaths": [
@@ -31,32 +57,6 @@
     "firstLoadChunkPaths": [
       ".next\\static\\chunks\\3heq3e6wy_z90.js",
       ".next\\static\\chunks\\05-gisjy55kt7.js",
-      ".next\\static\\chunks\\310vm2bl3xxpt.js",
-      ".next\\static\\chunks\\40j26qmlkjc3v.js",
-      ".next\\static\\chunks\\3e4keds9ktjdu.js",
-      ".next\\static\\chunks\\2hbx0u5pc3csk.js",
-      ".next\\static\\chunks\\turbopack-27ceoyevqspxg.js"
-    ]
-  },
-  {
-    "route": "/prikedin/[recruitmentId]",
-    "firstLoadUncompressedJsBytes": 473872,
-    "firstLoadChunkPaths": [
-      ".next\\static\\chunks\\3heq3e6wy_z90.js",
-      ".next\\static\\chunks\\2v28s039d_6vn.js",
-      ".next\\static\\chunks\\310vm2bl3xxpt.js",
-      ".next\\static\\chunks\\40j26qmlkjc3v.js",
-      ".next\\static\\chunks\\3e4keds9ktjdu.js",
-      ".next\\static\\chunks\\2hbx0u5pc3csk.js",
-      ".next\\static\\chunks\\turbopack-27ceoyevqspxg.js"
-    ]
-  },
-  {
-    "route": "/prikedin/new",
-    "firstLoadUncompressedJsBytes": 473608,
-    "firstLoadChunkPaths": [
-      ".next\\static\\chunks\\3heq3e6wy_z90.js",
-      ".next\\static\\chunks\\2k8jum92htty6.js",
       ".next\\static\\chunks\\310vm2bl3xxpt.js",
       ".next\\static\\chunks\\40j26qmlkjc3v.js",
       ".next\\static\\chunks\\3e4keds9ktjdu.js",
@@ -92,10 +92,10 @@
   },
   {
     "route": "/prikedin",
-    "firstLoadUncompressedJsBytes": 470590,
+    "firstLoadUncompressedJsBytes": 470689,
     "firstLoadChunkPaths": [
       ".next\\static\\chunks\\3heq3e6wy_z90.js",
-      ".next\\static\\chunks\\37ljqp5_8fni2.js",
+      ".next\\static\\chunks\\1eq0n8mmnq1-s.js",
       ".next\\static\\chunks\\310vm2bl3xxpt.js",
       ".next\\static\\chunks\\40j26qmlkjc3v.js",
       ".next\\static\\chunks\\3e4keds9ktjdu.js",

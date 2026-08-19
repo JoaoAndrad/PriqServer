@@ -52,6 +52,8 @@ export default function NewRecruitmentPage() {
   const inviteUserName = searchParams.get("inviteUserName");
 
   const [selectedGame, setSelectedGame] = useState<GameDTO | null>(null);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [dayPreset, setDayPreset] = useState<DayPreset>("today");
   const [customDate, setCustomDate] = useState(toDateInputValue(new Date()));
   const [time, setTime] = useState("");
@@ -93,6 +95,8 @@ export default function NewRecruitmentPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         gameId: selectedGame.id,
+        title: title.trim() || undefined,
+        description: description.trim() || undefined,
         scheduledAt: date.toISOString(),
         hasTime,
         maxSlots: parsedMaxSlots,
@@ -150,6 +154,30 @@ export default function NewRecruitmentPage() {
                   Trocar
                 </button>
               </div>
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="title">Título (opcional)</label>
+              <input
+                id="title"
+                type="text"
+                maxLength={80}
+                placeholder="Ex.: Rush pra fechar a campanha"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="description">Descrição (opcional)</label>
+              <textarea
+                id="description"
+                maxLength={500}
+                rows={3}
+                placeholder="Nível, requisitos, mais detalhes..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
             </div>
 
             <div className="form-field">
