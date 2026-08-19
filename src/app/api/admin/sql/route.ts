@@ -2,6 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_SCRIPT_KEY } from "@/lib/config";
 import { prisma } from "@/lib/prisma";
 
+/** COUNT/SUM em SQLite via $queryRaw voltam BigInt, que NextResponse.json não
+ * serializa — troca por Number (perde precisão só acima de 2^53, irrelevante
+ * pros tamanhos desse banco) antes de montar a resposta. */
+function jsonSafe(value: unknown): unknown {
+  if (typeof value === "bigint") return Number(value);
+  if (Array.isArray(value)) return value.map(jsonSafe);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, jsonSafe(v)]));
+  }
+  return value;
+}
+
 /**
  * Roda SQL arbitrário no banco de prod sob demanda, sem precisar cadastrar
  * script nenhum (ex.: `curl -X POST https://priquito.squareweb.app/api/admin/sql \
@@ -37,7 +49,7 @@ export async function POST(req: NextRequest) {
   try {
     if (isRead) {
       const rows = await prisma.$queryRawUnsafe(sql, ...params);
-      return NextResponse.json({ ok: true, rows });
+      return NextResponse.json({ ok: true, rows: jsonSafe(rows) });
     }
     const count = await prisma.$executeRawUnsafe(sql, ...params);
     return NextResponse.json({ ok: true, rowsAffected: count });
