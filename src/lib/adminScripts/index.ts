@@ -95,6 +95,23 @@ export const ADMIN_SCRIPTS = {
   },
 
   /**
+   * Checagem rápida de progresso — útil depois de um import-steam-library
+   * grande que estourou o timeout do Cloudflare (~100s) na resposta HTTP:
+   * o processo continua rodando no servidor mesmo sem a resposta chegar, dá
+   * pra conferir se terminou/quantos jogos já foram marcados owned.
+   */
+  async "count-user-games"(args?: Record<string, unknown>) {
+    const username = args?.username as string | undefined;
+    if (!username) throw new Error("informe { username } em args");
+
+    const user = await prisma.user.findUnique({ where: { username } });
+    if (!user) throw new Error(`usuário "${username}" não encontrado`);
+
+    const owned = await prisma.userGame.count({ where: { userId: user.id, owned: true } });
+    return { username, owned };
+  },
+
+  /**
    * Importa a biblioteca da Steam de um perfil pra um usuário já existente
    * (mesma lógica de /api/import/steam, só que disparável sem UI). Marca os
    * jogos como `owned: true` (source: steam-import) e `discoverable: true`.
