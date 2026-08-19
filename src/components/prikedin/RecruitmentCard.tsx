@@ -68,6 +68,20 @@ export default function RecruitmentCard({ recruitment }: { recruitment: Recruitm
       <div className="recruitment-card-body">
         <h3>{recruitment.title || recruitment.game.name}</h3>
         {recruitment.title && <p className="muted" style={{ margin: "0 0 2px" }}>{recruitment.game.name}</p>}
+        {recruitment.description && (
+          <p
+            style={{
+              margin: "2px 0",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+            }}
+          >
+            {recruitment.description}
+          </p>
+        )}
         <p className="muted" style={{ margin: "2px 0 10px" }}>
           {dateLabel} — por {recruitment.createdBy.displayName}
           {recruitment.maxSlots != null && (
