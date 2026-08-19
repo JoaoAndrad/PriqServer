@@ -4,8 +4,26 @@ import { getSteamGameTags } from "@/lib/steam/client";
 
 export type ModeFilter = "any" | "online" | "coop";
 
-const ONLINE_CATEGORIES = ["Multiplayer", "PvP", "Online PvP", "Online Co-op", "Co-op", "MMO"];
-const COOP_CATEGORIES = ["Co-op", "Online Co-op", "Local Co-op", "Shared/Split Screen Co-op"];
+// Nomes em PT-BR mesmo: getSteamGameTags busca appdetails com l=brazilian,
+// então as categorias vêm traduzidas (ex.: "Cooperativo", não "Co-op") — as
+// listas em inglês nunca batiam com quase nada do catálogo real.
+const ONLINE_CATEGORIES = [
+  "Multijogador",
+  "Multijogador multiplataforma",
+  "JxJ",
+  "JxJ on-line",
+  "JxJ em rede local (LAN)",
+  "JxJ tela dividida/compart.",
+  "Cooperativo",
+  "Cooperativo on-line",
+  "MMO",
+];
+const COOP_CATEGORIES = [
+  "Cooperativo",
+  "Cooperativo on-line",
+  "Coop. em rede local (LAN)",
+  "Coop. tela dividida/compart.",
+];
 
 function parseModes(game: Pick<Game, "modes">): string[] {
   if (!game.modes) return [];
